@@ -13,6 +13,7 @@ export default class DrawnPath extends React.Component {
   */
   render() {
     // Note: can be further minified by removing L's entirely, no space between M and first number
+
     // create d value like 'M 0 0 L 10 20 L 30 40'
     const dPath = this.props.pathData.reduce(
       (previousValue, currentValue) => previousValue + ` L ${currentValue[0]} ${currentValue[1]}`,
