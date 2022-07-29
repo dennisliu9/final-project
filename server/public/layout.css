@@ -1,3 +1,11 @@
+.is-position-fixed {
+  position: fixed;
+}
+
+.bottom-10pct {
+  bottom: 10%;
+}
+
 .page-center {
   position: absolute;
   width: 100%;
