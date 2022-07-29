@@ -1,5 +1,5 @@
 import React from 'react';
-import LogoSplash from '../components/logo-splash';
+import LogoSplash from './logo-splash';
 import DrawnPath from './drawn-path';
 
 const svgNS = 'http://www.w3.org/2000/svg';
