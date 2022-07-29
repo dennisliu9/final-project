@@ -91,40 +91,6 @@ export default class SVGCanvas extends React.Component {
     } else if (this.props.currentTool === 'eraser') {
       this.setState({ isErasing: true });
     }
-
-  }
-
-  handleMouseMove(event) {
-    if (this.props.currentTool === 'pen') {
-      if (this.state.currentElementId !== null) {
-        const mouseLocation = [event.clientX, event.clientY];
-        const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
-
-        this.addCoordinateToPathData(mouseLocation, currentPathIdx);
-      }
-    } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
-      const elementBelow = document.elementFromPoint(event.clientX, event.clientY);
-      if (elementBelow.tagName === 'path') {
-        this.removePath(elementBelow.dataset.elementId);
-      }
-    }
-
-  }
-
-  handleMouseUp(event) {
-    if (this.props.currentTool === 'pen') {
-      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
-      if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
-        // If mouse was clicked but no mouse movement was done, draw a dot.
-        const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
-        this.addCoordinateToPathData(mouseLocation, currentPathIdx);
-      }
-      this.setState({
-        currentElementId: null
-      });
-    } else if (this.props.currentTool === 'eraser') {
-      this.setState({ isErasing: false });
-    }
   }
 
   handleTouchStart(event) {
@@ -150,6 +116,22 @@ export default class SVGCanvas extends React.Component {
     }
   }
 
+  handleMouseMove(event) {
+    if (this.props.currentTool === 'pen') {
+      if (this.state.currentElementId !== null) {
+        const mouseLocation = [event.clientX, event.clientY];
+        const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+
+        this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+      }
+    } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
+      const elementBelow = document.elementFromPoint(event.clientX, event.clientY);
+      if (elementBelow.tagName === 'path') {
+        this.removePath(elementBelow.dataset.elementId);
+      }
+    }
+  }
+
   handleTouchMove(event) {
     if (this.props.currentTool === 'pen') {
       if (this.state.currentElementId !== null) {
@@ -163,6 +145,22 @@ export default class SVGCanvas extends React.Component {
       if (elementBelow.tagName === 'path') {
         this.removePath(elementBelow.dataset.elementId);
       }
+    }
+  }
+
+  handleMouseUp(event) {
+    if (this.props.currentTool === 'pen') {
+      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+      if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
+        // If mouse was clicked but no mouse movement was done, draw a dot.
+        const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
+        this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+      }
+      this.setState({
+        currentElementId: null
+      });
+    } else if (this.props.currentTool === 'eraser') {
+      this.setState({ isErasing: false });
     }
   }
 
