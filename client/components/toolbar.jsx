@@ -15,14 +15,14 @@ export default class Toolbar extends React.Component {
     return (
       <div id='toolbar' className="field has-addons is-position-fixed bottom-10pct">
         <p className="control" data-tool="pen" onClick={this.handleButtonClick}>
-          <button className="button is-selected is-primary">
+          <button className={`button ${(this.props.currentTool === 'pen') ? 'is-primary' : ''}`}>
             <span className="icon is-small">
               <i className="fas fa-pen"></i>
             </span>
           </button>
         </p>
         <p className="control" data-tool="eraser" onClick={this.handleButtonClick}>
-          <button className="button">
+          <button className={`button ${(this.props.currentTool === 'eraser') ? 'is-primary' : ''}`}>
             <span className="icon is-small">
               <i className="fas fa-eraser"></i>
             </span>
