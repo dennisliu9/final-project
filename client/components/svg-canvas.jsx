@@ -29,9 +29,12 @@ export default class SVGCanvas extends React.Component {
       ]
     };
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
-    this.handleMousedown = this.handleMousedown.bind(this);
-    this.handleMousemove = this.handleMousemove.bind(this);
-    this.handleMouseup = this.handleMouseup.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handleTouchMove = this.handleTouchMove.bind(this);
+    this.handleTouchEnd = this.handleTouchEnd.bind(this);
   }
 
   addCoordinateToPathData(coordinateArr, drawnPathsIdx) {
@@ -57,7 +60,7 @@ export default class SVGCanvas extends React.Component {
     });
   }
 
-  handleMousedown(event) {
+  handleMouseDown(event) {
     // Get location where user clicked
     const mouseLocation = [event.clientX, event.clientY];
 
@@ -78,7 +81,7 @@ export default class SVGCanvas extends React.Component {
     });
   }
 
-  handleMousemove(event) {
+  handleMouseMove(event) {
     if (this.state.currentElementId !== null) {
       const mouseLocation = [event.clientX, event.clientY];
       const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
@@ -88,11 +91,52 @@ export default class SVGCanvas extends React.Component {
 
   }
 
-  handleMouseup(event) {
+  handleMouseUp(event) {
     const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
     if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
       // If mouse was clicked but no mouse movement was done, draw a dot.
-      const mouseLocation = [event.clientX, event.clientY];
+      const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
+      this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+    }
+    this.setState({
+      currentElementId: null
+    });
+  }
+
+  handleTouchStart(event) {
+    // Get location where user touched using touches
+    const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
+
+    const newDrawnPath = {
+      elementId: this.state.nextElementId,
+      startingPoint: mouseLocation,
+      pathData: [],
+      stroke: this.state.strokeColor,
+      strokeWidth: this.state.strokeWidth
+    };
+
+    this.setState({
+      nextElementId: this.state.nextElementId + 1,
+      currentElementId: this.state.nextElementId,
+      drawnPaths: [...this.state.drawnPaths, newDrawnPath]
+    });
+  }
+
+  handleTouchMove(event) {
+    if (this.state.currentElementId !== null) {
+      const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
+      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+
+      this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+    }
+  }
+
+  handleTouchEnd(event) {
+    event.preventDefault(); // prevents mouse events from firing
+
+    const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+    if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
+      const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
       this.addCoordinateToPathData(mouseLocation, currentPathIdx);
     }
     this.setState({
@@ -107,9 +151,12 @@ export default class SVGCanvas extends React.Component {
           id="svg-canvas"
           className="page-center"
           xmlns={svgNS}
-          onMouseDown={this.handleMousedown}
-          onMouseMove={this.handleMousemove}
-          onMouseUp={this.handleMouseup}
+          onMouseDown={this.handleMouseDown}
+          onMouseMove={this.handleMouseMove}
+          onMouseUp={this.handleMouseUp}
+          onTouchStart={this.handleTouchStart}
+          onTouchMove={this.handleTouchMove}
+          onTouchEnd={this.handleTouchEnd}
         >
           { this.state.drawnPaths.map(
             pathDetail =>
