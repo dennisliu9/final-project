@@ -1,0 +1,3 @@
+#svg-canvas:hover {
+  cursor: url("./images/circle-cursor.png") 64 64, default;
+}

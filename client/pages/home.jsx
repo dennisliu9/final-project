@@ -1,10 +1,10 @@
 import React from 'react';
-import HelloWorld from '../components/hello-world';
+import SVGCanvas from '../components/svg-canvas';
 
 export default function Home(props) {
   return (
-    <div>
-      <HelloWorld />
+    <div className="page-center">
+      <SVGCanvas />
     </div>
   );
 }
