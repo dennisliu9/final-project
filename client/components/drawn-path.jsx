@@ -5,6 +5,7 @@ export default class DrawnPath extends React.Component {
   This component renders the path given attributes. All other logic (such as mouse
   clicking and movement) should be handled by the encompassing canvas.
   Should receive the following props
+    elementId: 1
     startingPoint: [x, y]
     pathData: [[x1, y1], [x2, y2], ...]
     stroke: "#FF0000" (or some other color representation)
@@ -19,8 +20,9 @@ export default class DrawnPath extends React.Component {
       (previousValue, currentValue) => previousValue + ` L ${currentValue[0]} ${currentValue[1]}`,
       `M ${this.props.startingPoint[0]} ${this.props.startingPoint[1]}`
     );
-    const { stroke, strokeWidth } = this.props;
+    const { elementId, stroke, strokeWidth } = this.props;
     return <path
+      data-element-id={elementId}
       d={dPath}
       stroke={stroke}
       strokeWidth={strokeWidth}

@@ -1,5 +1,5 @@
 import React from 'react';
-import LogoSplash from '../components/logo-splash';
+import LogoSplash from './logo-splash';
 import DrawnPath from './drawn-path';
 
 const svgNS = 'http://www.w3.org/2000/svg';
@@ -10,7 +10,8 @@ export default class SVGCanvas extends React.Component {
     this.state = {
       nextElementId: 1,
       currentElementId: null,
-      strokeColor: 'hsl(204, 86%, 53%)',
+      isErasing: false,
+      strokeColor: '#f09595',
       strokeWidth: 5,
       drawnPaths: [
         // Example drawnPath object
@@ -29,6 +30,7 @@ export default class SVGCanvas extends React.Component {
       ]
     };
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
+    this.removePath = this.removePath.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -60,88 +62,123 @@ export default class SVGCanvas extends React.Component {
     });
   }
 
+  removePath(elementId) {
+    this.setState({
+      drawnPaths: this.state.drawnPaths.filter(pathDetail => pathDetail.elementId !== Number(elementId))
+    });
+  }
+
   handleMouseDown(event) {
-    // Get location where user clicked
-    const mouseLocation = [event.clientX, event.clientY];
-
-    // Create a new drawnPath object with user click as startingPoint
-    const newDrawnPath = {
-      elementId: this.state.nextElementId,
-      startingPoint: mouseLocation,
-      pathData: [],
-      stroke: this.state.strokeColor,
-      strokeWidth: this.state.strokeWidth
-    };
-
-    // Add new path to array of paths, and update element ID's
-    this.setState({
-      nextElementId: this.state.nextElementId + 1,
-      currentElementId: this.state.nextElementId,
-      drawnPaths: [...this.state.drawnPaths, newDrawnPath]
-    });
-  }
-
-  handleMouseMove(event) {
-    if (this.state.currentElementId !== null) {
+    if (this.props.currentTool === 'pen') {
+      // Get location where user clicked
       const mouseLocation = [event.clientX, event.clientY];
-      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
 
-      this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+      // Create a new drawnPath object with user click as startingPoint
+      const newDrawnPath = {
+        elementId: this.state.nextElementId,
+        startingPoint: mouseLocation,
+        pathData: [],
+        stroke: this.state.strokeColor,
+        strokeWidth: this.state.strokeWidth
+      };
+
+      // Add new path to array of paths, and update element ID's
+      this.setState({
+        nextElementId: this.state.nextElementId + 1,
+        currentElementId: this.state.nextElementId,
+        drawnPaths: [...this.state.drawnPaths, newDrawnPath]
+      });
+    } else if (this.props.currentTool === 'eraser') {
+      this.setState({ isErasing: true });
     }
-
-  }
-
-  handleMouseUp(event) {
-    const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
-    if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
-      // If mouse was clicked but no mouse movement was done, draw a dot.
-      const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
-      this.addCoordinateToPathData(mouseLocation, currentPathIdx);
-    }
-    this.setState({
-      currentElementId: null
-    });
   }
 
   handleTouchStart(event) {
-    // Get location where user touched using touches
-    const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
+    if (this.props.currentTool === 'pen') {
+      // Get location where user touched using touches
+      const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
 
-    const newDrawnPath = {
-      elementId: this.state.nextElementId,
-      startingPoint: mouseLocation,
-      pathData: [],
-      stroke: this.state.strokeColor,
-      strokeWidth: this.state.strokeWidth
-    };
+      const newDrawnPath = {
+        elementId: this.state.nextElementId,
+        startingPoint: mouseLocation,
+        pathData: [],
+        stroke: this.state.strokeColor,
+        strokeWidth: this.state.strokeWidth
+      };
 
-    this.setState({
-      nextElementId: this.state.nextElementId + 1,
-      currentElementId: this.state.nextElementId,
-      drawnPaths: [...this.state.drawnPaths, newDrawnPath]
-    });
+      this.setState({
+        nextElementId: this.state.nextElementId + 1,
+        currentElementId: this.state.nextElementId,
+        drawnPaths: [...this.state.drawnPaths, newDrawnPath]
+      });
+    } else if (this.props.currentTool === 'eraser') {
+      this.setState({ isErasing: true });
+    }
+  }
+
+  handleMouseMove(event) {
+    if (this.props.currentTool === 'pen') {
+      if (this.state.currentElementId !== null) {
+        const mouseLocation = [event.clientX, event.clientY];
+        const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+
+        this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+      }
+    } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
+      const elementBelow = document.elementFromPoint(event.clientX, event.clientY);
+      if (elementBelow.tagName === 'path') {
+        this.removePath(elementBelow.dataset.elementId);
+      }
+    }
   }
 
   handleTouchMove(event) {
-    if (this.state.currentElementId !== null) {
-      const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
-      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+    if (this.props.currentTool === 'pen') {
+      if (this.state.currentElementId !== null) {
+        const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
+        const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
 
-      this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+        this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+      }
+    } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
+      const elementBelow = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
+      if (elementBelow.tagName === 'path') {
+        this.removePath(elementBelow.dataset.elementId);
+      }
+    }
+  }
+
+  handleMouseUp(event) {
+    if (this.props.currentTool === 'pen') {
+      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+      if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
+        // If mouse was clicked but no mouse movement was done, draw a dot.
+        const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
+        this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+      }
+      this.setState({
+        currentElementId: null
+      });
+    } else if (this.props.currentTool === 'eraser') {
+      this.setState({ isErasing: false });
     }
   }
 
   handleTouchEnd(event) {
     event.preventDefault(); // prevents mouse events from firing
 
-    const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
-    if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
-      const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
-      this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+    if (this.props.currentTool === 'pen') {
+      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+      if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
+        const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
+        this.addCoordinateToPathData(mouseLocation, currentPathIdx);
+      }
+      this.setState({
+        currentElementId: null
+      });
+    } else if (this.props.currentTool === 'eraser') {
+      this.setState({ isErasing: false });
     }
-    this.setState({
-      currentElementId: null
-    });
   }
 
   render() {
@@ -162,6 +199,7 @@ export default class SVGCanvas extends React.Component {
             pathDetail =>
               <DrawnPath
                 key={pathDetail.elementId}
+                elementId={pathDetail.elementId}
                 startingPoint={pathDetail.startingPoint}
                 pathData={pathDetail.pathData}
                 stroke={pathDetail.stroke}
