@@ -1,6 +1,7 @@
 import React from 'react';
 import LogoSplash from './logo-splash';
 import DrawnPath from './drawn-path';
+import Textbox from './textbox';
 
 const svgNS = 'http://www.w3.org/2000/svg';
 
@@ -11,11 +12,13 @@ export default class SVGCanvas extends React.Component {
       nextElementId: 1,
       currentElementId: null,
       isErasing: false,
+      isTyping: false,
       strokeColor: this.props.currentColor.colorValue,
       strokeWidth: 5,
-      drawnPaths: [
+      elements: [
         // Example drawnPath object
         // {
+        //   elementType: 'path',
         //   elementId: 0,
         //   startingPoint: [10, 10],
         //   pathData: [
@@ -48,9 +51,9 @@ export default class SVGCanvas extends React.Component {
     }
   }
 
-  addCoordinateToPathData(coordinateArr, drawnPathsIdx) {
+  addCoordinateToPathData(coordinateArr, elementsIdx) {
     // Retrieve object that we want to add the coordinate to
-    const modifyPathObj = this.state.drawnPaths[drawnPathsIdx];
+    const modifyPathObj = this.state.elements[elementsIdx];
 
     // Make a shallow copy of the coordinates it currently has
     const newPathData = [...modifyPathObj.pathData];
@@ -58,6 +61,7 @@ export default class SVGCanvas extends React.Component {
 
     // Recreate the object, substituting the new path data
     const newCurrentPath = {
+      elementType: modifyPathObj.elementType,
       elementId: modifyPathObj.elementId,
       startingPoint: modifyPathObj.startingPoint,
       pathData: newPathData,
@@ -67,13 +71,13 @@ export default class SVGCanvas extends React.Component {
 
     // Put the new object back in the original location
     this.setState({
-      drawnPaths: [...this.state.drawnPaths.slice(0, drawnPathsIdx), newCurrentPath, ...this.state.drawnPaths.slice(drawnPathsIdx + 1)]
+      elements: [...this.state.elements.slice(0, elementsIdx), newCurrentPath, ...this.state.elements.slice(elementsIdx + 1)]
     });
   }
 
   removePath(elementId) {
     this.setState({
-      drawnPaths: this.state.drawnPaths.filter(pathDetail => pathDetail.elementId !== Number(elementId))
+      elements: this.state.elements.filter(elementDetail => elementDetail.elementId !== Number(elementId))
     });
   }
 
@@ -93,6 +97,7 @@ export default class SVGCanvas extends React.Component {
 
       // Create a new drawnPath object with user click as startingPoint
       const newDrawnPath = {
+        elementType: 'path',
         elementId: this.state.nextElementId,
         startingPoint: mouseLocation,
         pathData: [],
@@ -104,7 +109,7 @@ export default class SVGCanvas extends React.Component {
       this.setState({
         nextElementId: this.state.nextElementId + 1,
         currentElementId: this.state.nextElementId,
-        drawnPaths: [...this.state.drawnPaths, newDrawnPath]
+        elements: [...this.state.elements, newDrawnPath]
       });
     } else if (this.props.currentTool === 'eraser') {
       this.setState({ isErasing: true });
@@ -117,6 +122,7 @@ export default class SVGCanvas extends React.Component {
       const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
 
       const newDrawnPath = {
+        elementType: 'path',
         elementId: this.state.nextElementId,
         startingPoint: mouseLocation,
         pathData: [],
@@ -127,7 +133,7 @@ export default class SVGCanvas extends React.Component {
       this.setState({
         nextElementId: this.state.nextElementId + 1,
         currentElementId: this.state.nextElementId,
-        drawnPaths: [...this.state.drawnPaths, newDrawnPath]
+        elements: [...this.state.elements, newDrawnPath]
       });
     } else if (this.props.currentTool === 'eraser') {
       this.setState({ isErasing: true });
@@ -138,7 +144,7 @@ export default class SVGCanvas extends React.Component {
     if (this.props.currentTool === 'pen') {
       if (this.state.currentElementId !== null) {
         const mouseLocation = [event.clientX, event.clientY];
-        const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+        const currentPathIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
 
         this.addCoordinateToPathData(mouseLocation, currentPathIdx);
       }
@@ -154,7 +160,7 @@ export default class SVGCanvas extends React.Component {
     if (this.props.currentTool === 'pen') {
       if (this.state.currentElementId !== null) {
         const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
-        const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
+        const currentPathIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
 
         this.addCoordinateToPathData(mouseLocation, currentPathIdx);
       }
@@ -168,10 +174,10 @@ export default class SVGCanvas extends React.Component {
 
   handleMouseUp(event) {
     if (this.props.currentTool === 'pen') {
-      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
-      if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
+      const currentPathIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
+      if (this.state.elements[currentPathIdx].pathData.length === 0) {
         // If mouse was clicked but no mouse movement was done, draw a dot.
-        const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
+        const mouseLocation = this.state.elements[currentPathIdx].startingPoint;
         this.addCoordinateToPathData(mouseLocation, currentPathIdx);
       }
       this.setState({
@@ -186,9 +192,9 @@ export default class SVGCanvas extends React.Component {
     event.preventDefault(); // prevents mouse events from firing
 
     if (this.props.currentTool === 'pen') {
-      const currentPathIdx = this.state.drawnPaths.findIndex(element => element.elementId === this.state.currentElementId);
-      if (this.state.drawnPaths[currentPathIdx].pathData.length === 0) {
-        const mouseLocation = this.state.drawnPaths[currentPathIdx].startingPoint;
+      const currentPathIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
+      if (this.state.elements[currentPathIdx].pathData.length === 0) {
+        const mouseLocation = this.state.elements[currentPathIdx].startingPoint;
         this.addCoordinateToPathData(mouseLocation, currentPathIdx);
       }
       this.setState({
@@ -214,19 +220,36 @@ export default class SVGCanvas extends React.Component {
           onTouchEnd={this.handleTouchEnd}
           style={{ '--cursor-type': this.updateCursorType(this.props.currentTool) }}
         >
-          { this.state.drawnPaths.map(
-            pathDetail =>
-              <DrawnPath
-                key={pathDetail.elementId}
-                elementId={pathDetail.elementId}
-                startingPoint={pathDetail.startingPoint}
-                pathData={pathDetail.pathData}
-                stroke={pathDetail.stroke}
-                strokeWidth={pathDetail.strokeWidth}
-              />
+          { this.state.elements.map(
+            elementDetail => {
+              // Successfully changed drawnPaths to elements
+              if (elementDetail.elementType === 'path') {
+                return (
+                  <DrawnPath
+                    key={elementDetail.elementId}
+                    elementId={elementDetail.elementId}
+                    startingPoint={elementDetail.startingPoint}
+                    pathData={elementDetail.pathData}
+                    stroke={elementDetail.stroke}
+                    strokeWidth={elementDetail.strokeWidth}
+                  />
+                );
+              } else if (elementDetail.elementType === 'text') {
+                return (
+                  <Textbox
+                    key={elementDetail.elementId}
+                    elementId={elementDetail.elementId}
+                    startingPoint={elementDetail.startingPoint}
+                    userInput={elementDetail.userInput}
+                    fill={elementDetail.fill}
+                    fontSize={elementDetail.fontSize}
+                  />
+                );
+              } else { return <></>; }
+            }
           )}
         </svg>
-        {(this.state.drawnPaths.length > 0) ? <></> : <LogoSplash />}
+        {(this.state.elements.length > 0) ? <></> : <LogoSplash />}
       </div>
     );
   }
