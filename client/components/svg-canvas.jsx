@@ -11,7 +11,7 @@ export default class SVGCanvas extends React.Component {
       nextElementId: 1,
       currentElementId: null,
       isErasing: false,
-      strokeColor: '#f09595',
+      strokeColor: this.props.currentColor.colorValue,
       strokeWidth: 5,
       drawnPaths: [
         // Example drawnPath object
@@ -37,6 +37,12 @@ export default class SVGCanvas extends React.Component {
     this.handleTouchStart = this.handleTouchStart.bind(this);
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.currentColor !== prevProps.currentColor) {
+      this.setState({ strokeColor: this.props.currentColor.colorValue });
+    }
   }
 
   addCoordinateToPathData(coordinateArr, drawnPathsIdx) {

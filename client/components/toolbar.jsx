@@ -1,9 +1,15 @@
 import React from 'react';
+import ToolbarColorButton from './toolbar-color-button';
 
 export default class Toolbar extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      selectingColor: false
+    };
     this.handleButtonClick = this.handleButtonClick.bind(this);
+    this.toggleColorSelect = this.toggleColorSelect.bind(this);
+    this.chooseColor = this.chooseColor.bind(this);
   }
 
   handleButtonClick(event) {
@@ -11,11 +17,21 @@ export default class Toolbar extends React.Component {
     this.props.updateCurrentTool(selectedTool);
   }
 
+  toggleColorSelect(event) {
+    this.setState({ selectingColor: !this.state.selectingColor });
+  }
+
+  chooseColor(event) {
+    this.toggleColorSelect();
+    this.props.updateCurrentColor(event.currentTarget.dataset.color);
+
+  }
+
   render() {
     return (
-      <nav id='toolbar' className="level  is-position-fixed bottom-10pct">
+      <nav id='toolbar' className="level is-mobile is-position-fixed bottom-10pct">
         <div className="level-left">
-          {/* wrap each element below in a level-item? */}
+          {/* tools */}
           <div className="level-item">
             <div className="field has-addons">
               <p className="control" data-tool="pen" onClick={this.handleButtonClick}>
@@ -36,10 +52,10 @@ export default class Toolbar extends React.Component {
           </div>
           {/* color selection */}
           <div className="level-item">
-            <div className="dropdown is-up is-active">
+            <div className={`dropdown is-right is-up ${(this.state.selectingColor) ? 'is-active' : ''}`}>
               <div className="dropdown-trigger">
-                <button className="button" aria-haspopup="true" aria-controls="color-select-menu">
-                  <span className="icon is-small">
+                <button className="button" aria-haspopup="true" aria-controls="color-select-menu" onClick={this.toggleColorSelect}>
+                  <span style={{ color: this.props.currentColor.colorValue }} className="icon is-small">
                     <i className="fas fa-circle" aria-hidden="true"></i>
                   </span>
                   <span className="icon is-small">
@@ -52,36 +68,15 @@ export default class Toolbar extends React.Component {
                   <div className="dropdown-item">
                     {/* colors */}
                     <div className="field has-addons">
-                      <p className="control" data-color="red" onClick={() => console.log('1')}>
-                        <button className="button is-white">
-                          <span style={{ color: '#FF6B6B' }} className="icon is-small">
-                            <i className="fas fa-circle"></i>
-                          </span>
-                        </button>
-                      </p>
-                      <p className="control" data-color="yellow" onClick={() => console.log('1')}>
-                        <button className="button is-white">
-                          <span style={{ color: '#FFD93D' }} className="icon is-small">
-                            <i className="fas fa-circle"></i>
-                          </span>
-                        </button>
-                      </p>
-                      <p className="control" data-color="green" onClick={() => console.log('1')}>
-                        <button className="button is-white">
-                          <span style={{ color: '#6BCB77' }} className="icon is-small">
-                            <i className="fas fa-circle"></i>
-                          </span>
-                        </button>
-                      </p>
-                      <p className="control" data-color="blue" onClick={() => console.log('1')}>
-                        <button className="button is-white">
-                          <span style={{ color: '#4D96FF' }} className="icon is-small">
-                            <i className="fas fa-circle"></i>
-                          </span>
-                        </button>
-                      </p>
+                      {this.props.colors.map(colorObj => {
+                        return <ToolbarColorButton
+                          key={colorObj.colorName}
+                          colorName={colorObj.colorName}
+                          colorValue={colorObj.colorValue}
+                          chooseColor={this.chooseColor}
+                        />;
+                      })}
                     </div>
-
                   </div>
                 </div>
               </div>
