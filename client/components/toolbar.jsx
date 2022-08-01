@@ -41,6 +41,13 @@ export default class Toolbar extends React.Component {
                   </span>
                 </button>
               </p>
+              <p className="control" data-tool="text" onClick={this.handleButtonClick}>
+                <button className={`button ${(this.props.currentTool === 'text') ? 'is-primary' : ''}`}>
+                  <span className="icon is-small">
+                    <i className="fas fa-t"></i>
+                  </span>
+                </button>
+              </p>
               <p className="control" data-tool="eraser" onClick={this.handleButtonClick}>
                 <button className={`button ${(this.props.currentTool === 'eraser') ? 'is-primary' : ''}`}>
                   <span className="icon is-small">
