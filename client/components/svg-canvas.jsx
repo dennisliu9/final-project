@@ -31,6 +31,7 @@ export default class SVGCanvas extends React.Component {
     };
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
     this.removePath = this.removePath.bind(this);
+    this.updateCursorType = this.updateCursorType.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
@@ -41,7 +42,9 @@ export default class SVGCanvas extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.currentColor !== prevProps.currentColor) {
-      this.setState({ strokeColor: this.props.currentColor.colorValue });
+      this.setState({
+        strokeColor: this.props.currentColor.colorValue
+      });
     }
   }
 
@@ -72,6 +75,15 @@ export default class SVGCanvas extends React.Component {
     this.setState({
       drawnPaths: this.state.drawnPaths.filter(pathDetail => pathDetail.elementId !== Number(elementId))
     });
+  }
+
+  updateCursorType(currentTool) {
+    // expecting this.props.currentTool
+    if (currentTool === 'pen' || currentTool === 'eraser') {
+      return 'url("./images/circle-cursor.png") 64 64, default';
+    } else if (currentTool === 'text') {
+      return 'text';
+    }
   }
 
   handleMouseDown(event) {
@@ -200,6 +212,7 @@ export default class SVGCanvas extends React.Component {
           onTouchStart={this.handleTouchStart}
           onTouchMove={this.handleTouchMove}
           onTouchEnd={this.handleTouchEnd}
+          style={{ '--cursor-type': this.updateCursorType(this.props.currentTool) }}
         >
           { this.state.drawnPaths.map(
             pathDetail =>
