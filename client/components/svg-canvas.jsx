@@ -2,6 +2,7 @@ import React from 'react';
 import LogoSplash from './logo-splash';
 import DrawnPath from './drawn-path';
 import Textbox from './textbox';
+import TextboxModal from './textbox-modal';
 
 const svgNS = 'http://www.w3.org/2000/svg';
 
@@ -352,6 +353,7 @@ export default class SVGCanvas extends React.Component {
           )}
         </svg>
         {(this.state.elements.length > 0) ? <></> : <LogoSplash />}
+        <TextboxModal />
       </div>
     );
   }
