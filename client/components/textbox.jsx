@@ -14,6 +14,7 @@ export default class Textbox extends React.Component {
         }}
       >
         {this.props.userInput}
+        {(this.props.isCurrentTextbox) ? <tspan className='text-cursor'>|</tspan> : <></>}
       </text>
     );
   }

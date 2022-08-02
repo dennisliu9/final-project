@@ -5,3 +5,21 @@
 #svg-canvas:hover {
   cursor: var(--cursor-type);
 }
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+text > tspan.text-cursor {
+  animation: fade 1s infinite;
+}

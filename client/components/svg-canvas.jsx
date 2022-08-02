@@ -15,6 +15,7 @@ export default class SVGCanvas extends React.Component {
       isTyping: false,
       strokeColor: this.props.currentColor.colorValue,
       strokeWidth: 5,
+      fontSize: '2rem',
       elements: [
         // Example drawnPath object
         // {
@@ -41,6 +42,7 @@ export default class SVGCanvas extends React.Component {
     this.handleTouchStart = this.handleTouchStart.bind(this);
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
+    // this.handleKeydown = this.handleKeydown.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -113,6 +115,22 @@ export default class SVGCanvas extends React.Component {
       });
     } else if (this.props.currentTool === 'eraser') {
       this.setState({ isErasing: true });
+    } else if (this.props.currentTool === 'text') {
+      const mouseLocation = [event.clientX, event.clientY];
+      const newTextbox = {
+        elementType: 'text',
+        elementId: this.state.nextElementId,
+        startingPoint: mouseLocation,
+        userInput: '',
+        fill: this.state.strokeColor,
+        fontSize: this.state.fontSize
+      };
+      this.setState({
+        nextElementId: this.state.nextElementId + 1,
+        currentElementId: this.state.nextElementId,
+        elements: [...this.state.elements, newTextbox],
+        isTyping: true
+      });
     }
   }
 
@@ -137,6 +155,22 @@ export default class SVGCanvas extends React.Component {
       });
     } else if (this.props.currentTool === 'eraser') {
       this.setState({ isErasing: true });
+    } else if (this.props.currentTool === 'text') {
+      const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
+      const newTextbox = {
+        elementType: 'text',
+        elementId: this.state.nextElementId,
+        startingPoint: mouseLocation,
+        userInput: '',
+        fill: this.state.strokeColor,
+        fontSize: this.state.fontSize
+      };
+      this.setState({
+        nextElementId: this.state.nextElementId + 1,
+        currentElementId: this.state.nextElementId,
+        elements: [...this.state.elements, newTextbox],
+        isTyping: true
+      });
     }
   }
 
@@ -205,6 +239,13 @@ export default class SVGCanvas extends React.Component {
     }
   }
 
+  // handleKeydown(event) {
+  //   console.log('handleKeydown triggered: ', event);
+  //   if (this.state.isTyping === true) {
+  //     console.log('typed: ', event.key);
+  //   }
+  // }
+
   render() {
     return (
       <div className="page-center">
@@ -218,6 +259,8 @@ export default class SVGCanvas extends React.Component {
           onTouchStart={this.handleTouchStart}
           onTouchMove={this.handleTouchMove}
           onTouchEnd={this.handleTouchEnd}
+          onKeyDownCapture={this.handleKeydown}
+          tabIndex="0" // allows svg to get keyboard inputs
           style={{ '--cursor-type': this.updateCursorType(this.props.currentTool) }}
         >
           { this.state.elements.map(
@@ -243,6 +286,7 @@ export default class SVGCanvas extends React.Component {
                     userInput={elementDetail.userInput}
                     fill={elementDetail.fill}
                     fontSize={elementDetail.fontSize}
+                    isCurrentTextbox={elementDetail.elementId === this.state.currentElementId}
                   />
                 );
               } else { return <></>; }
