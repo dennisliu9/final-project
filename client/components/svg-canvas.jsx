@@ -55,6 +55,7 @@ export default class SVGCanvas extends React.Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleKeydown = this.handleKeydown.bind(this);
+    this.handleTextboxModalSubmit = this.handleTextboxModalSubmit.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -305,6 +306,26 @@ export default class SVGCanvas extends React.Component {
     }
   }
 
+  handleTextboxModalSubmit(userInputText, currentElementId) {
+    // modal submission doesn't submit one key at a time but instead entire input at once
+    const modifyTextObjIdx = this.state.elements.findIndex(element => element.elementId === currentElementId);
+    const modifyTextObj = this.state.elements[modifyTextObjIdx];
+    const newTextData = userInputText;
+
+    const newCurrentText = {
+      elementType: modifyTextObj.elementType,
+      elementId: modifyTextObj.elementId,
+      startingPoint: modifyTextObj.startingPoint,
+      userInput: newTextData,
+      fill: modifyTextObj.fill,
+      fontSize: modifyTextObj.fontSize
+    };
+
+    this.setState({
+      elements: [...this.state.elements.slice(0, modifyTextObjIdx), newCurrentText, ...this.state.elements.slice(modifyTextObjIdx + 1)]
+    });
+  }
+
   render() {
     return (
       <div className="page-center">
@@ -324,7 +345,6 @@ export default class SVGCanvas extends React.Component {
         >
           { this.state.elements.map(
             elementDetail => {
-              // Successfully changed drawnPaths to elements
               if (elementDetail.elementType === 'path') {
                 return (
                   <DrawnPath
@@ -353,7 +373,16 @@ export default class SVGCanvas extends React.Component {
           )}
         </svg>
         {(this.state.elements.length > 0) ? <></> : <LogoSplash />}
-        <TextboxModal />
+        {(this.state.isTyping)
+          ? (
+            <TextboxModal
+              finishTextWriting={this.finishTextWriting}
+              currentElementId={this.state.currentElementId}
+              handleTextboxModalSubmit={this.handleTextboxModalSubmit}
+            />
+            )
+          : <></>
+        }
       </div>
     );
   }
