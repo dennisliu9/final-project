@@ -65,6 +65,9 @@ export default class SVGCanvas extends React.Component {
       });
     }
     if (this.props.currentTool !== prevProps.currentTool) {
+      if (prevProps.currentTool === 'text' && this.state.currentElementId !== null) {
+        this.finishTextWriting(this.state.currentElementId);
+      }
       this.setState({
         currentElementId: null,
         isErasing: false,
@@ -302,7 +305,7 @@ export default class SVGCanvas extends React.Component {
   }
 
   handleKeydown(event) {
-    // how do we handle copy-paste?
+    // Note: copy-paste not supported
     if (this.state.isTyping === true) {
       const currentTextboxIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
       if (event.key.length === 1 || event.key === 'Backspace') {
