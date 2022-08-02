@@ -31,9 +31,19 @@ export default class SVGCanvas extends React.Component {
         //   stroke: 'hsl(204, 86%, 53%)',
         //   strokeWidth: 5
         // }
+        // Example textbox object
+        // {
+        //   elementType: 'text',
+        //   elementId: 1,
+        //   startingPoint: [140, 140],
+        //   userInput: 'hello world',
+        //   fill: 'hsl(204, 86%, 53%)',
+        //   fontSize: '2rem'
+        // }
       ]
     };
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
+    this.addUserInputToTextData = this.addUserInputToTextData.bind(this);
     this.removePath = this.removePath.bind(this);
     this.updateCursorType = this.updateCursorType.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -42,7 +52,7 @@ export default class SVGCanvas extends React.Component {
     this.handleTouchStart = this.handleTouchStart.bind(this);
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
-    // this.handleKeydown = this.handleKeydown.bind(this);
+    this.handleKeydown = this.handleKeydown.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -74,6 +84,30 @@ export default class SVGCanvas extends React.Component {
     // Put the new object back in the original location
     this.setState({
       elements: [...this.state.elements.slice(0, elementsIdx), newCurrentPath, ...this.state.elements.slice(elementsIdx + 1)]
+    });
+  }
+
+  addUserInputToTextData(userInputKey, elementsIdx) {
+    // Check for valid characters BEFORE calling this method
+    const modifyTextObj = this.state.elements[elementsIdx];
+    let newTextData = modifyTextObj.userInput;
+    if (userInputKey === 'Backspace') {
+      newTextData = newTextData.slice(0, -1);
+    } else {
+      newTextData = newTextData + userInputKey;
+    }
+
+    const newCurrentText = {
+      elementType: modifyTextObj.elementType,
+      elementId: modifyTextObj.elementId,
+      startingPoint: modifyTextObj.startingPoint,
+      userInput: newTextData,
+      fill: modifyTextObj.fill,
+      fontSize: modifyTextObj.fontSize
+    };
+
+    this.setState({
+      elements: [...this.state.elements.slice(0, elementsIdx), newCurrentText, ...this.state.elements.slice(elementsIdx + 1)]
     });
   }
 
@@ -239,12 +273,17 @@ export default class SVGCanvas extends React.Component {
     }
   }
 
-  // handleKeydown(event) {
-  //   console.log('handleKeydown triggered: ', event);
-  //   if (this.state.isTyping === true) {
-  //     console.log('typed: ', event.key);
-  //   }
-  // }
+  handleKeydown(event) {
+    // how do we handle copy-paste?
+    // Handle escape
+
+    if (this.state.isTyping === true) {
+      if (event.key.length === 1 || event.key === 'Backspace') {
+        const currentTextboxIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
+        this.addUserInputToTextData(event.key, currentTextboxIdx);
+      }
+    }
+  }
 
   render() {
     return (
@@ -259,7 +298,7 @@ export default class SVGCanvas extends React.Component {
           onTouchStart={this.handleTouchStart}
           onTouchMove={this.handleTouchMove}
           onTouchEnd={this.handleTouchEnd}
-          onKeyDownCapture={this.handleKeydown}
+          onKeyDown={this.handleKeydown}
           tabIndex="0" // allows svg to get keyboard inputs
           style={{ '--cursor-type': this.updateCursorType(this.props.currentTool) }}
         >
