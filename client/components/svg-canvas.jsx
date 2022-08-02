@@ -86,12 +86,8 @@ export default class SVGCanvas extends React.Component {
 
     // Recreate the object, substituting the new path data
     const newCurrentPath = {
-      elementType: modifyPathObj.elementType,
-      elementId: modifyPathObj.elementId,
-      startingPoint: modifyPathObj.startingPoint,
-      pathData: newPathData,
-      stroke: modifyPathObj.stroke,
-      strokeWidth: modifyPathObj.strokeWidth
+      ...modifyPathObj,
+      pathData: newPathData
     };
 
     // Put the new object back in the original location
@@ -111,12 +107,8 @@ export default class SVGCanvas extends React.Component {
     }
 
     const newCurrentText = {
-      elementType: modifyTextObj.elementType,
-      elementId: modifyTextObj.elementId,
-      startingPoint: modifyTextObj.startingPoint,
-      userInput: newTextData,
-      fill: modifyTextObj.fill,
-      fontSize: modifyTextObj.fontSize
+      ...modifyTextObj,
+      userInput: newTextData
     };
 
     this.setState({
@@ -145,10 +137,12 @@ export default class SVGCanvas extends React.Component {
 
   updateCursorType(currentTool) {
     // expecting this.props.currentTool
-    if (currentTool === 'pen' || currentTool === 'eraser') {
-      return 'url("./images/circle-cursor.png") 64 64, default';
-    } else if (currentTool === 'text') {
-      return 'text';
+    switch (currentTool) {
+      case 'pen':
+      case 'eraser':
+        return 'url("./images/circle-cursor.png") 64 64, default';
+      case 'text':
+        return 'text';
     }
   }
 
@@ -323,12 +317,8 @@ export default class SVGCanvas extends React.Component {
     const newTextData = userInputText;
 
     const newCurrentText = {
-      elementType: modifyTextObj.elementType,
-      elementId: modifyTextObj.elementId,
-      startingPoint: modifyTextObj.startingPoint,
-      userInput: newTextData,
-      fill: modifyTextObj.fill,
-      fontSize: modifyTextObj.fontSize
+      ...modifyTextObj,
+      userInput: newTextData
     };
 
     this.setState({
