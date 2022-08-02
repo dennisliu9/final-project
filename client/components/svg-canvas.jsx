@@ -45,6 +45,7 @@ export default class SVGCanvas extends React.Component {
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
     this.addUserInputToTextData = this.addUserInputToTextData.bind(this);
     this.removeElement = this.removeElement.bind(this);
+    this.finishTextWriting = this.finishTextWriting.bind(this);
     this.updateCursorType = this.updateCursorType.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -117,6 +118,19 @@ export default class SVGCanvas extends React.Component {
     });
   }
 
+  finishTextWriting(idToRemove) {
+    if (idToRemove) {
+      // Check if userInput was blank and remove textbox if so
+      if (this.state.elements.find(element => element.elementId === idToRemove).userInput === '') {
+        this.removeElement(idToRemove);
+      }
+    }
+    this.setState({
+      currentElementId: null,
+      isTyping: false
+    });
+  }
+
   updateCursorType(currentTool) {
     // expecting this.props.currentTool
     if (currentTool === 'pen' || currentTool === 'eraser') {
@@ -150,22 +164,26 @@ export default class SVGCanvas extends React.Component {
     } else if (this.props.currentTool === 'eraser') {
       this.setState({ isErasing: true });
     } else if (this.props.currentTool === 'text') {
-      console.log('event.target.dataset.elementId: ', event.target.dataset.elementId);
-      const mouseLocation = [event.clientX, event.clientY];
-      const newTextbox = {
-        elementType: 'text',
-        elementId: this.state.nextElementId,
-        startingPoint: mouseLocation,
-        userInput: '',
-        fill: this.state.strokeColor,
-        fontSize: this.state.fontSize
-      };
-      this.setState({
-        nextElementId: this.state.nextElementId + 1,
-        currentElementId: this.state.nextElementId,
-        elements: [...this.state.elements, newTextbox],
-        isTyping: true
-      });
+      // If user has an active textbox but then clicks, exit
+      if (this.state.isTyping) {
+        this.finishTextWriting(this.state.currentElementId);
+      } else {
+        const mouseLocation = [event.clientX, event.clientY];
+        const newTextbox = {
+          elementType: 'text',
+          elementId: this.state.nextElementId,
+          startingPoint: mouseLocation,
+          userInput: '',
+          fill: this.state.strokeColor,
+          fontSize: this.state.fontSize
+        };
+        this.setState({
+          nextElementId: this.state.nextElementId + 1,
+          currentElementId: this.state.nextElementId,
+          elements: [...this.state.elements, newTextbox],
+          isTyping: true
+        });
+      }
     }
   }
 
@@ -276,12 +294,12 @@ export default class SVGCanvas extends React.Component {
 
   handleKeydown(event) {
     // how do we handle copy-paste?
-    // Handle escape
-
     if (this.state.isTyping === true) {
+      const currentTextboxIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
       if (event.key.length === 1 || event.key === 'Backspace') {
-        const currentTextboxIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
         this.addUserInputToTextData(event.key, currentTextboxIdx);
+      } else if (event.key === 'Escape' || event.key === 'Enter') {
+        this.finishTextWriting(this.state.currentElementId);
       }
     }
   }
