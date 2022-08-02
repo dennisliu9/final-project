@@ -5,7 +5,8 @@ export default class Toolbar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectingColor: false
+      selectingColor: false,
+      previousTool: null
     };
     this.handleButtonClick = this.handleButtonClick.bind(this);
     this.toggleColorSelect = this.toggleColorSelect.bind(this);
@@ -18,13 +19,17 @@ export default class Toolbar extends React.Component {
   }
 
   toggleColorSelect(event) {
-    this.setState({ selectingColor: !this.state.selectingColor });
+    // deselect current tool during color selection, but save its value to revert when color is selected
+    this.setState({
+      selectingColor: !this.state.selectingColor,
+      previousTool: (this.state.previousTool) ? null : this.props.currentTool
+    });
+    this.props.updateCurrentTool(this.state.previousTool);
   }
 
   chooseColor(event) {
     this.toggleColorSelect();
     this.props.updateCurrentColor(event.currentTarget.dataset.color);
-
   }
 
   render() {
@@ -38,6 +43,13 @@ export default class Toolbar extends React.Component {
                 <button className={`button ${(this.props.currentTool === 'pen') ? 'is-primary' : ''}`}>
                   <span className="icon is-small">
                     <i className="fas fa-pen"></i>
+                  </span>
+                </button>
+              </p>
+              <p className="control" data-tool="text" onClick={this.handleButtonClick}>
+                <button className={`button ${(this.props.currentTool === 'text') ? 'is-primary' : ''}`}>
+                  <span className="icon is-small">
+                    <i className="fas fa-t"></i>
                   </span>
                 </button>
               </p>
