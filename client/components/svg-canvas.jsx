@@ -44,7 +44,7 @@ export default class SVGCanvas extends React.Component {
     };
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
     this.addUserInputToTextData = this.addUserInputToTextData.bind(this);
-    this.removePath = this.removePath.bind(this);
+    this.removeElement = this.removeElement.bind(this);
     this.updateCursorType = this.updateCursorType.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -111,7 +111,7 @@ export default class SVGCanvas extends React.Component {
     });
   }
 
-  removePath(elementId) {
+  removeElement(elementId) {
     this.setState({
       elements: this.state.elements.filter(elementDetail => elementDetail.elementId !== Number(elementId))
     });
@@ -150,6 +150,7 @@ export default class SVGCanvas extends React.Component {
     } else if (this.props.currentTool === 'eraser') {
       this.setState({ isErasing: true });
     } else if (this.props.currentTool === 'text') {
+      console.log('event.target.dataset.elementId: ', event.target.dataset.elementId);
       const mouseLocation = [event.clientX, event.clientY];
       const newTextbox = {
         elementType: 'text',
@@ -218,8 +219,8 @@ export default class SVGCanvas extends React.Component {
       }
     } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
       const elementBelow = document.elementFromPoint(event.clientX, event.clientY);
-      if (elementBelow.tagName === 'path') {
-        this.removePath(elementBelow.dataset.elementId);
+      if (elementBelow.tagName === 'path' || elementBelow.tagName === 'text') {
+        this.removeElement(elementBelow.dataset.elementId);
       }
     }
   }
@@ -234,8 +235,8 @@ export default class SVGCanvas extends React.Component {
       }
     } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
       const elementBelow = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
-      if (elementBelow.tagName === 'path') {
-        this.removePath(elementBelow.dataset.elementId);
+      if (elementBelow.tagName === 'path' || elementBelow.tagName === 'text') {
+        this.removeElement(elementBelow.dataset.elementId);
       }
     }
   }

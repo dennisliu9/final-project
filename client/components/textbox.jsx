@@ -5,6 +5,7 @@ export default class Textbox extends React.Component {
   render() {
     return (
       <text
+        data-element-id={this.props.elementId}
         x={this.props.startingPoint[0]}
         y={this.props.startingPoint[1]}
         style={{
@@ -19,9 +20,3 @@ export default class Textbox extends React.Component {
     );
   }
 }
-
-// elementId: 0,
-//   startingPoint: [100, 100],
-//     userInput: 'Hello, this is a\nmultiline text input.',
-//       color: 'hsl(286, 98%, 50%)',
-//         fontSize: '2rem'
