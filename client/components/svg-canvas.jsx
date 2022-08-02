@@ -64,6 +64,13 @@ export default class SVGCanvas extends React.Component {
         strokeColor: this.props.currentColor.colorValue
       });
     }
+    if (this.props.currentTool !== prevProps.currentTool) {
+      this.setState({
+        currentElementId: null,
+        isErasing: false,
+        isTyping: false
+      });
+    }
   }
 
   addCoordinateToPathData(coordinateArr, elementsIdx) {
