@@ -3,6 +3,7 @@ import LogoSplash from './logo-splash';
 import DrawnPath from './drawn-path';
 import Textbox from './textbox';
 import TextboxModal from './textbox-modal';
+import MarkdownBox from './markdown-box';
 
 const svgNS = 'http://www.w3.org/2000/svg';
 
@@ -17,7 +18,7 @@ export default class SVGCanvas extends React.Component {
       strokeColor: this.props.currentColor.colorValue,
       strokeWidth: 5,
       fontSize: '2rem',
-      markdownBoxDimensions: [400, 400], // width, length
+      markdownBoxDimensions: [400, 400], // width, height
       elements: [
         // Example drawnPath object
         // {
@@ -227,7 +228,7 @@ export default class SVGCanvas extends React.Component {
           elementId: this.state.nextElementId,
           startingPoint: mouseLocation,
           width: this.state.markdownBoxDimensions[0],
-          length: this.state.markdownBoxDimensions[1],
+          height: this.state.markdownBoxDimensions[1],
           userInput: '',
           render: false
         };
@@ -278,8 +279,8 @@ export default class SVGCanvas extends React.Component {
         isTyping: true
       });
     } else if (this.props.currentTool === 'textMd') {
-      // if user is typing into this box
       if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {
+        // TODO: This will need to be reconsidered for how touch will work
         this.finishMarkdownWriting();
       } else {
         const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
@@ -288,7 +289,7 @@ export default class SVGCanvas extends React.Component {
           elementId: this.state.nextElementId,
           startingPoint: mouseLocation,
           width: this.state.markdownBoxDimensions[0],
-          length: this.state.markdownBoxDimensions[1],
+          height: this.state.markdownBoxDimensions[1],
           userInput: '',
           render: false
         };
@@ -447,8 +448,17 @@ export default class SVGCanvas extends React.Component {
                   />
                 );
               } else if (elementDetail.elementType === 'textMd') {
-                // return a MarkdownBox
-                return <></>;
+                return (
+                  <MarkdownBox
+                    key={elementDetail.elementId}
+                    elementId={elementDetail.elementId}
+                    startingPoint={elementDetail.startingPoint}
+                    width={elementDetail.width}
+                    height={elementDetail.height}
+                    userInput={elementDetail.userInput}
+                    render={elementDetail.render}
+                  />
+                );
               } else { return <></>; }
             }
           )}
