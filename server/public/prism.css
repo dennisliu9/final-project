@@ -5,6 +5,10 @@ https://prismjs.com/download.html#themes=prism-okaidia */
  * okaidia theme for JavaScript, CSS and HTML
  * Loosely based on Monokai textmate theme by http://www.monokai.nl/
  * @author ocodia
+ *
+ * DL: Added prism- prefix to most classes to account
+ * for Prism.plugins.customClass.prefix('prism-') in order to avoid collisions
+ * with Bulma styles
  */
 
 code[class*="language-"],
