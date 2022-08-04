@@ -143,10 +143,12 @@ export default class SVGCanvas extends React.Component {
     });
   }
 
-  finishTextWriting() {
-    // Check if userInput was blank and remove textbox if so
-    if (this.state.elements.find(element => element.elementId === this.state.currentElementId).userInput === '') {
-      this.removeElement(this.state.currentElementId);
+  finishTextWriting(skipBlankCheck) {
+    if (!skipBlankCheck) {
+      // Check if userInput was blank and remove textbox if so
+      if (this.state.elements.find(element => element.elementId === this.state.currentElementId).userInput === '') {
+        this.removeElement(this.state.currentElementId);
+      }
     }
     this.setState({
       currentElementId: null,
@@ -489,6 +491,7 @@ export default class SVGCanvas extends React.Component {
                     userInput={elementDetail.userInput}
                     render={elementDetail.render}
                     handleChange={this.addUserInputToMarkdownData}
+                    finishMarkdownWriting={this.finishMarkdownWriting}
                   />
                 );
               } else { return <></>; }

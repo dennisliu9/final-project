@@ -45,7 +45,8 @@ export default class MarkdownBox extends React.Component {
       >
         {(render)
           ? <div className='marked-output' dangerouslySetInnerHTML={{ __html: userInputHTMLClean }}></div>
-          : <textarea
+          : <>
+            <textarea
               className='textarea'
               placeholder='Type Markdown here. Hit Esc to cancel, Ctrl-Enter to save.'
               cols={40}
@@ -54,7 +55,24 @@ export default class MarkdownBox extends React.Component {
               value={userInput}
               onChange={handleChange}
             >
-            </textarea> // update this textarea
+            </textarea>
+            <nav className="level is-hidden-desktop is-mobile mt-2">
+              <div className="level-left">
+                <div className="level-item">
+                  <button className="button is-danger is-outlined">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+              <div className="level-right">
+                <div className="level-item">
+                  <button className="button is-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </nav>
+          </>
         }
       </foreignObject>
     );
