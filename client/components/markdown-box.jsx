@@ -16,7 +16,8 @@ marked.setOptions({
       // If the grammar is not installed/recognized, just return the code as is
       return code;
     }
-  }
+  },
+  headerIds: false
 });
 
 export default class MarkdownBox extends React.Component {
