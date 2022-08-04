@@ -18,7 +18,7 @@ export default class SVGCanvas extends React.Component {
       strokeColor: this.props.currentColor.colorValue,
       strokeWidth: 5,
       fontSize: '2rem',
-      markdownBoxDimensions: [parseInt(window.innerWidth / 3), parseInt(window.innerHeight / 3)], // width, height
+      markdownBoxDimensions: [parseInt(window.innerWidth / 2), parseInt(window.innerHeight / 3)], // width, height
       elements: [
         // Example drawnPath object
         // {
