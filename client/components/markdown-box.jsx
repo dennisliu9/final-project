@@ -31,7 +31,7 @@ export default class MarkdownBox extends React.Component {
 
   render() {
 
-    const { elementId, startingPoint, width, height, userInput, render } = this.props;
+    const { elementId, startingPoint, width, height, userInput, render, handleChange } = this.props;
     const userInputHTMLClean = DOMPurify.sanitize(marked.parse(userInput));
 
     return (
@@ -44,7 +44,15 @@ export default class MarkdownBox extends React.Component {
       >
         {(render)
           ? <div className='marked-output' dangerouslySetInnerHTML={{ __html: userInputHTMLClean }}></div>
-          : <textarea></textarea> // update this textarea
+          : <textarea
+              placeholder='Type Markdown here. Hit Esc to cancel, Ctrl-Enter to save.'
+              cols={40}
+              rows={10}
+              autoFocus={true}
+              value={userInput}
+              onChange={handleChange}
+            >
+            </textarea> // update this textarea
         }
       </foreignObject>
     );
