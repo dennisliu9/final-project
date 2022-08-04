@@ -17,6 +17,7 @@ export default class SVGCanvas extends React.Component {
       strokeColor: this.props.currentColor.colorValue,
       strokeWidth: 5,
       fontSize: '2rem',
+      markdownBoxDimensions: [400, 400], // width, length
       elements: [
         // Example drawnPath object
         // {
@@ -47,6 +48,7 @@ export default class SVGCanvas extends React.Component {
     this.addUserInputToTextData = this.addUserInputToTextData.bind(this);
     this.removeElement = this.removeElement.bind(this);
     this.finishTextWriting = this.finishTextWriting.bind(this);
+    this.finishMarkdownWriting = this.finishMarkdownWriting.bind(this);
     this.updateCursorType = this.updateCursorType.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -66,7 +68,7 @@ export default class SVGCanvas extends React.Component {
     }
     if (this.props.currentTool !== prevProps.currentTool) {
       if (prevProps.currentTool === 'text' && this.state.currentElementId !== null) {
-        this.finishTextWriting(this.state.currentElementId);
+        this.finishTextWriting();
       }
       this.setState({
         currentElementId: null,
@@ -74,6 +76,8 @@ export default class SVGCanvas extends React.Component {
         isTyping: false
       });
     }
+    // TODO: add a similar condition for markdown
+    // If someone is typing Markdown, then switches tools without hitting Escape or clicking away, it should commit the markdown
   }
 
   addCoordinateToPathData(coordinateArr, elementsIdx) {
@@ -122,17 +126,38 @@ export default class SVGCanvas extends React.Component {
     });
   }
 
-  finishTextWriting(idToRemove) {
-    if (idToRemove) {
-      // Check if userInput was blank and remove textbox if so
-      if (this.state.elements.find(element => element.elementId === idToRemove).userInput === '') {
-        this.removeElement(idToRemove);
-      }
+  finishTextWriting() {
+    // Check if userInput was blank and remove textbox if so
+    if (this.state.elements.find(element => element.elementId === this.state.currentElementId).userInput === '') {
+      this.removeElement(this.state.currentElementId);
     }
     this.setState({
       currentElementId: null,
       isTyping: false
     });
+  }
+
+  finishMarkdownWriting() {
+    const modifyMarkdownObjIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
+    const modifyMarkdownObj = this.state.elements[modifyMarkdownObjIdx];
+
+    if (modifyMarkdownObj.userInput === '') {
+      // Remove element if input was blank
+      this.removeElement(this.state.currentElementId);
+      this.setState({ currentElementId: null });
+    } else {
+      // If input was not blank,
+      // set render to true to turn user input into rendered Markdown
+      // and "reinsert" new object into elements
+      const newMarkdownObj = {
+        ...modifyMarkdownObj,
+        render: true
+      };
+      this.setState({
+        currentElementId: null,
+        elements: [...this.state.elements.slice(0, modifyMarkdownObjIdx), newMarkdownObj, ...this.state.elements.slice(modifyMarkdownObjIdx + 1)]
+      });
+    }
   }
 
   updateCursorType(currentTool) {
@@ -142,6 +167,7 @@ export default class SVGCanvas extends React.Component {
       case 'eraser':
         return 'url("./images/circle-cursor.png") 64 64, default';
       case 'text':
+      case 'textMd':
         return 'text';
     }
   }
@@ -172,7 +198,7 @@ export default class SVGCanvas extends React.Component {
     } else if (this.props.currentTool === 'text') {
       // If user has an active textbox but then clicks, exit
       if (this.state.isTyping) {
-        this.finishTextWriting(this.state.currentElementId);
+        this.finishTextWriting();
       } else {
         const mouseLocation = [event.clientX, event.clientY];
         const newTextbox = {
@@ -188,6 +214,27 @@ export default class SVGCanvas extends React.Component {
           currentElementId: this.state.nextElementId,
           elements: [...this.state.elements, newTextbox],
           isTyping: true
+        });
+      }
+    } else if (this.props.currentTool === 'textMd') {
+      // if user is typing into this box
+      if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {
+        this.finishMarkdownWriting();
+      } else {
+        const mouseLocation = [event.clientX, event.clientY];
+        const newMarkdownBox = {
+          elementType: 'textMd',
+          elementId: this.state.nextElementId,
+          startingPoint: mouseLocation,
+          width: this.state.markdownBoxDimensions[0],
+          length: this.state.markdownBoxDimensions[1],
+          userInput: '',
+          render: false
+        };
+        this.setState({
+          nextElementId: this.state.nextElementId + 1,
+          currentElementId: this.state.nextElementId,
+          elements: [...this.state.elements, newMarkdownBox]
         });
       }
     }
@@ -230,6 +277,27 @@ export default class SVGCanvas extends React.Component {
         elements: [...this.state.elements, newTextbox],
         isTyping: true
       });
+    } else if (this.props.currentTool === 'textMd') {
+      // if user is typing into this box
+      if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {
+        this.finishMarkdownWriting();
+      } else {
+        const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
+        const newMarkdownBox = {
+          elementType: 'textMd',
+          elementId: this.state.nextElementId,
+          startingPoint: mouseLocation,
+          width: this.state.markdownBoxDimensions[0],
+          length: this.state.markdownBoxDimensions[1],
+          userInput: '',
+          render: false
+        };
+        this.setState({
+          nextElementId: this.state.nextElementId + 1,
+          currentElementId: this.state.nextElementId,
+          elements: [...this.state.elements, newMarkdownBox]
+        });
+      }
     }
   }
 
@@ -305,8 +373,18 @@ export default class SVGCanvas extends React.Component {
       if (event.key.length === 1 || event.key === 'Backspace') {
         this.addUserInputToTextData(event.key, currentTextboxIdx);
       } else if (event.key === 'Escape' || event.key === 'Enter') {
-        this.finishTextWriting(this.state.currentElementId);
+        this.finishTextWriting();
       }
+    } else if (this.state.currentElementId !== null && this.props.currentTool === 'textMd') {
+      // condition could be improved to target "actively typing for a markdown box"
+      if (event.key === 'Escape') {
+        // Escape should remove even if there was text
+        this.removeElement(this.state.currentElementId);
+        this.setState({ currentElementId: null });
+      } else if (event.key === 'Enter' && event.ctrlKey) {
+        this.finishMarkdownWriting();
+      }
+
     }
   }
 
@@ -368,6 +446,9 @@ export default class SVGCanvas extends React.Component {
                     isCurrentTextbox={elementDetail.elementId === this.state.currentElementId}
                   />
                 );
+              } else if (elementDetail.elementType === 'textMd') {
+                // return a MarkdownBox
+                return <></>;
               } else { return <></>; }
             }
           )}
