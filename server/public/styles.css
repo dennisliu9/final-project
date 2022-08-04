@@ -24,7 +24,15 @@ text > tspan.text-cursor {
   animation: fade 1s infinite;
 }
 
-/* test */
+/* markdown boxes */
 foreignObject {
-  border: 2px solid red;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: border 200ms ease, box-shadow 200ms ease;
+}
+
+foreignObject:hover {
+  border: 2px solid hsl(171deg, 100%, 41%); /* Bulma's primary */
+  border-radius: 4px;
+  box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.02);
 }

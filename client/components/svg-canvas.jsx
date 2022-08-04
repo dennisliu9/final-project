@@ -18,7 +18,7 @@ export default class SVGCanvas extends React.Component {
       strokeColor: this.props.currentColor.colorValue,
       strokeWidth: 5,
       fontSize: '2rem',
-      markdownBoxDimensions: [640, 480], // width, height
+      markdownBoxDimensions: [parseInt(window.innerWidth / 3), parseInt(window.innerHeight / 3)], // width, height
       elements: [
         // Example drawnPath object
         // {
@@ -235,24 +235,27 @@ export default class SVGCanvas extends React.Component {
       }
     } else if (this.props.currentTool === 'textMd') {
       if (event.target.tagName !== 'TEXTAREA') {
-        if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {
-          this.finishMarkdownWriting();
-        } else {
-          const mouseLocation = [event.clientX, event.clientY];
-          const newMarkdownBox = {
-            elementType: 'textMd',
-            elementId: this.state.nextElementId,
-            startingPoint: mouseLocation,
-            width: this.state.markdownBoxDimensions[0],
-            height: this.state.markdownBoxDimensions[1],
-            userInput: '',
-            render: false
-          };
-          this.setState({
-            nextElementId: this.state.nextElementId + 1,
-            currentElementId: this.state.nextElementId,
-            elements: [...this.state.elements, newMarkdownBox]
-          });
+        // If user did not click on a foreignObject
+        if (!document.elementsFromPoint(event.clientX, event.clientY).some(element => element.tagName === 'foreignObject')) {
+          if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {
+            this.finishMarkdownWriting();
+          } else {
+            const mouseLocation = [event.clientX, event.clientY];
+            const newMarkdownBox = {
+              elementType: 'textMd',
+              elementId: this.state.nextElementId,
+              startingPoint: mouseLocation,
+              width: this.state.markdownBoxDimensions[0],
+              height: this.state.markdownBoxDimensions[1],
+              userInput: '',
+              render: false
+            };
+            this.setState({
+              nextElementId: this.state.nextElementId + 1,
+              currentElementId: this.state.nextElementId,
+              elements: [...this.state.elements, newMarkdownBox]
+            });
+          }
         }
       }
     }
@@ -297,25 +300,28 @@ export default class SVGCanvas extends React.Component {
       });
     } else if (this.props.currentTool === 'textMd') {
       if (event.target.tagName !== 'TEXTAREA') {
-        if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {
-          // TODO: This will need to be reconsidered for how touch will work
-          this.finishMarkdownWriting();
-        } else {
-          const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
-          const newMarkdownBox = {
-            elementType: 'textMd',
-            elementId: this.state.nextElementId,
-            startingPoint: mouseLocation,
-            height: this.state.markdownBoxDimensions[1],
-            width: this.state.markdownBoxDimensions[0],
-            userInput: '',
-            render: false
-          };
-          this.setState({
-            nextElementId: this.state.nextElementId + 1,
-            currentElementId: this.state.nextElementId,
-            elements: [...this.state.elements, newMarkdownBox]
-          });
+        // If user did not click on a foreignObject
+        if (!document.elementsFromPoint(event.touches[0].clientX, event.touches[0].clientY).some(element => element.tagName === 'foreignObject')) {
+          if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {
+            // TODO: This will need to be reconsidered for how touch will work
+            this.finishMarkdownWriting();
+          } else {
+            const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
+            const newMarkdownBox = {
+              elementType: 'textMd',
+              elementId: this.state.nextElementId,
+              startingPoint: mouseLocation,
+              height: this.state.markdownBoxDimensions[1],
+              width: this.state.markdownBoxDimensions[0],
+              userInput: '',
+              render: false
+            };
+            this.setState({
+              nextElementId: this.state.nextElementId + 1,
+              currentElementId: this.state.nextElementId,
+              elements: [...this.state.elements, newMarkdownBox]
+            });
+          }
         }
       }
     }
@@ -323,6 +329,8 @@ export default class SVGCanvas extends React.Component {
 
   handleMouseMove(event) {
     if (this.props.currentTool === 'pen') {
+      // When using pen, highlighting of text (especially of text in MD boxes) should be disabled
+      event.preventDefault();
       if (this.state.currentElementId !== null) {
         const mouseLocation = [event.clientX, event.clientY];
         const currentPathIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
@@ -330,13 +338,6 @@ export default class SVGCanvas extends React.Component {
         this.addCoordinateToPathData(mouseLocation, currentPathIdx);
       }
     } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
-      // const elementBelow = document.elementFromPoint(event.clientX, event.clientY);
-      // if (elementBelow.tagName === 'path' || elementBelow.tagName === 'text') {
-      //   this.removeElement(elementBelow.dataset.elementId);
-      // } else {
-      //   console.log('elementsBelow: ', document.elementsFromPoint(event.clientX, event.clientY));
-      // }
-      // test doing it with elements
       const elementsBelow = document.elementsFromPoint(event.clientX, event.clientY);
       if (elementsBelow[0].tagName === 'path' || elementsBelow[0].tagName === 'text') {
         this.removeElement(elementsBelow[0].dataset.elementId);
@@ -355,10 +356,6 @@ export default class SVGCanvas extends React.Component {
         this.addCoordinateToPathData(mouseLocation, currentPathIdx);
       }
     } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
-      // const elementBelow = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
-      // if (elementBelow.tagName === 'path' || elementBelow.tagName === 'text') {
-      //   this.removeElement(elementBelow.dataset.elementId);
-      // }
       const elementsBelow = document.elementsFromPoint(event.touches[0].clientX, event.touches[0].clientY);
       if (elementsBelow[0].tagName === 'path' || elementsBelow[0].tagName === 'text') {
         this.removeElement(elementsBelow[0].dataset.elementId);
