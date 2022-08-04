@@ -23,3 +23,8 @@
 text > tspan.text-cursor {
   animation: fade 1s infinite;
 }
+
+/* test */
+foreignObject {
+  border: 2px solid red;
+}

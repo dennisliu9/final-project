@@ -18,7 +18,7 @@ export default class SVGCanvas extends React.Component {
       strokeColor: this.props.currentColor.colorValue,
       strokeWidth: 5,
       fontSize: '2rem',
-      markdownBoxDimensions: [400, 1200], // width, height
+      markdownBoxDimensions: [640, 480], // width, height
       elements: [
         // Example drawnPath object
         // {
@@ -306,8 +306,8 @@ export default class SVGCanvas extends React.Component {
             elementType: 'textMd',
             elementId: this.state.nextElementId,
             startingPoint: mouseLocation,
-            width: this.state.markdownBoxDimensions[0],
             height: this.state.markdownBoxDimensions[1],
+            width: this.state.markdownBoxDimensions[0],
             userInput: '',
             render: false
           };
@@ -330,9 +330,18 @@ export default class SVGCanvas extends React.Component {
         this.addCoordinateToPathData(mouseLocation, currentPathIdx);
       }
     } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
-      const elementBelow = document.elementFromPoint(event.clientX, event.clientY);
-      if (elementBelow.tagName === 'path' || elementBelow.tagName === 'text') {
-        this.removeElement(elementBelow.dataset.elementId);
+      // const elementBelow = document.elementFromPoint(event.clientX, event.clientY);
+      // if (elementBelow.tagName === 'path' || elementBelow.tagName === 'text') {
+      //   this.removeElement(elementBelow.dataset.elementId);
+      // } else {
+      //   console.log('elementsBelow: ', document.elementsFromPoint(event.clientX, event.clientY));
+      // }
+      // test doing it with elements
+      const elementsBelow = document.elementsFromPoint(event.clientX, event.clientY);
+      if (elementsBelow[0].tagName === 'path' || elementsBelow[0].tagName === 'text') {
+        this.removeElement(elementsBelow[0].dataset.elementId);
+      } else if (elementsBelow.some(element => element.tagName === 'foreignObject')) {
+        this.removeElement(elementsBelow.find(element => element.tagName === 'foreignObject').dataset.elementId);
       }
     }
   }
@@ -346,9 +355,15 @@ export default class SVGCanvas extends React.Component {
         this.addCoordinateToPathData(mouseLocation, currentPathIdx);
       }
     } else if (this.state.isErasing === true && this.props.currentTool === 'eraser') {
-      const elementBelow = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
-      if (elementBelow.tagName === 'path' || elementBelow.tagName === 'text') {
-        this.removeElement(elementBelow.dataset.elementId);
+      // const elementBelow = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
+      // if (elementBelow.tagName === 'path' || elementBelow.tagName === 'text') {
+      //   this.removeElement(elementBelow.dataset.elementId);
+      // }
+      const elementsBelow = document.elementsFromPoint(event.touches[0].clientX, event.touches[0].clientY);
+      if (elementsBelow[0].tagName === 'path' || elementsBelow[0].tagName === 'text') {
+        this.removeElement(elementsBelow[0].dataset.elementId);
+      } else if (elementsBelow.some(element => element.tagName === 'foreignObject')) {
+        this.removeElement(elementsBelow.find(element => element.tagName === 'foreignObject').dataset.elementId);
       }
     }
   }
