@@ -23,7 +23,7 @@ export default class TextboxModal extends React.Component {
       this.setState({ invalidInput: true });
     } else {
       this.props.handleTextboxModalSubmit(this.state.userInput, this.props.currentElementId);
-      this.props.finishTextWriting(null);
+      this.props.finishTextWriting(true);
     }
   }
 
@@ -37,7 +37,7 @@ export default class TextboxModal extends React.Component {
             <button
               className="delete"
               aria-label='close'
-              onClick={event => this.props.finishTextWriting(this.props.currentElementId)}
+              onClick={event => this.props.finishTextWriting()}
             >
             </button>
           </header>
@@ -54,7 +54,7 @@ export default class TextboxModal extends React.Component {
           <footer className="modal-card-foot is-flex is-justify-content-space-between">
             <button
               className="button is-danger is-outlined"
-              onClick={event => this.props.finishTextWriting(this.props.currentElementId)}
+              onClick={event => this.props.finishTextWriting()}
             >
               Cancel
             </button>

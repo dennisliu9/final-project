@@ -9,3 +9,12 @@ body {
 #svg-canvas {
   touch-action: none;
 }
+
+div.marked-output *:not(pre, pre *) {
+  /* for Markdown output, ignore Bulma */
+  all: revert !important;
+
+  /* If desired, add a font-family to override Bulma font */
+
+  /* font-family: serif !important; */
+}

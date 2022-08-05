@@ -23,3 +23,27 @@
 text > tspan.text-cursor {
   animation: fade 1s infinite;
 }
+
+/* markdown boxes */
+foreignObject {
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: border 200ms ease, box-shadow 200ms ease;
+}
+
+@media screen and (max-width: 1024px) {
+  foreignObject {
+    border: 2px solid hsl(0deg, 0%, 96%);
+    border-radius: 4px;
+  }
+}
+
+foreignObject:hover {
+  border: 2px solid hsl(171deg, 100%, 41%); /* Bulma's primary */
+  border-radius: 4px;
+  box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.02);
+}
+
+foreignObject * {
+  overflow: hidden;
+}
