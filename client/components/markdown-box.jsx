@@ -50,7 +50,7 @@ export default class MarkdownBox extends React.Component {
           : <>
             <textarea
               className='textarea'
-              placeholder='Type Markdown here. Hit Esc to cancel, Ctrl-Enter to save.'
+              placeholder='Type Markdown here. Hit Esc to cancel, Ctrl-Enter to save (or just click outside the box).'
               cols={40}
               rows={5}
               autoFocus={true}
