@@ -69,6 +69,28 @@ export default class SVGCanvas extends React.Component {
       });
     }
     if (this.props.currentTool !== prevProps.currentTool) {
+      // bugfix for when a markdown input is open but not submitted and tool changes
+      if (prevProps.currentTool === 'textMd') {
+        const nonRenderedMarkdown = this.state.elements.map(elementDetail => {
+          if (elementDetail.elementType !== 'textMd' || elementDetail.render === true) {
+            return elementDetail;
+          } else if (elementDetail.userInput !== '') {
+            return ({
+              ...elementDetail,
+              render: true
+            });
+          } else {
+            return null;
+          }
+        });
+
+        const cleanedNonRenderedMarkdown = nonRenderedMarkdown.filter(element => element !== null);
+
+        this.setState({
+          elements: cleanedNonRenderedMarkdown
+        });
+      }
+
       if (prevProps.currentTool === 'text' && this.state.currentElementId !== null) {
         this.finishTextWriting();
       }
@@ -78,8 +100,6 @@ export default class SVGCanvas extends React.Component {
         isTyping: false
       });
     }
-    // TODO: add a similar condition for markdown
-    // If someone is typing Markdown, then switches tools without hitting Escape or clicking away, it should commit the markdown
   }
 
   addCoordinateToPathData(coordinateArr, elementsIdx) {
