@@ -156,11 +156,11 @@ export default class SVGCanvas extends React.Component {
     });
   }
 
-  finishMarkdownWriting() {
+  finishMarkdownWriting(isCancel) {
     const modifyMarkdownObjIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
     const modifyMarkdownObj = this.state.elements[modifyMarkdownObjIdx];
 
-    if (modifyMarkdownObj.userInput === '') {
+    if (modifyMarkdownObj.userInput === '' || isCancel) {
       // Remove element if input was blank
       this.removeElement(this.state.currentElementId);
       this.setState({ currentElementId: null });
@@ -301,7 +301,7 @@ export default class SVGCanvas extends React.Component {
         isTyping: true
       });
     } else if (this.props.currentTool === 'textMd') {
-      if (event.target.tagName !== 'TEXTAREA') {
+      if (event.target.tagName !== 'TEXTAREA' && event.target.tagName !== 'BUTTON') {
         // If user did not click on a foreignObject
         if (!document.elementsFromPoint(event.touches[0].clientX, event.touches[0].clientY).some(element => element.tagName === 'foreignObject')) {
           if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {

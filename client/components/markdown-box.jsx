@@ -29,10 +29,12 @@ export default class MarkdownBox extends React.Component {
   // height: this.state.markdownBoxDimensions[1],
   // userInput: '',
   // render: false
+  // handleChange = {this.addUserInputToMarkdownData}
+  // finishMarkdownWriting = {this.finishMarkdownWriting}
 
   render() {
 
-    const { elementId, startingPoint, width, height, userInput, render, handleChange } = this.props;
+    const { elementId, startingPoint, width, height, userInput, render, handleChange, finishMarkdownWriting } = this.props;
     const userInputHTMLClean = DOMPurify.sanitize(marked.parse(userInput));
 
     return (
@@ -59,14 +61,14 @@ export default class MarkdownBox extends React.Component {
             <nav className="level is-hidden-desktop is-mobile mt-2">
               <div className="level-left">
                 <div className="level-item">
-                  <button className="button is-danger is-outlined">
+                  <button className="button is-danger is-outlined" onTouchEnd={() => finishMarkdownWriting(true)}>
                     Cancel
                   </button>
                 </div>
               </div>
               <div className="level-right">
                 <div className="level-item">
-                  <button className="button is-primary">
+                  <button className="button is-primary" onTouchEnd={() => finishMarkdownWriting()}>
                     Submit
                   </button>
                 </div>
