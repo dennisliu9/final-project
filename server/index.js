@@ -14,6 +14,8 @@ if (process.env.NODE_ENV === 'development') {
   app.use(express.static(publicPath));
 }
 
+app.use(express.json());
+
 const db = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -52,9 +54,9 @@ app.get('/api/drawings/:drawingId', (req, res, next) => {
   }
 
   const sqlGetDrawing = `
-  SELECT  "drawingId", "elements"
-  FROM    "Drawings"
-  WHERE   "drawingId" = $1;
+  SELECT    "drawingId", "elements"
+  FROM      "Drawings"
+  WHERE     "drawingId" = $1;
   `;
   const params = [drawingId];
 
@@ -68,6 +70,51 @@ app.get('/api/drawings/:drawingId', (req, res, next) => {
         return;
       }
       res.json(drawingData);
+    })
+    .catch(err => next(err));
+});
+
+app.get('/api/drawingsaves/issaved', (req, res, next) => {
+  if (!req.body || !req.body.userId || !req.body.drawingId) {
+    res.status(400).json({
+      error: 'You did not submit a body with userId and drawingId.'
+    });
+    return;
+  }
+
+  const { userId, drawingId } = req.body;
+
+  if (!Number.isInteger(Number(userId)) || userId < 1) {
+    res.status(400).json({
+      error: `userId must be a positive integer, you supplied: ${userId}`
+    });
+    return;
+  }
+
+  if (!Number.isInteger(Number(drawingId)) || drawingId < 1) {
+    res.status(400).json({
+      error: `drawingId must be a positive integer, you supplied: ${drawingId}`
+    });
+    return;
+  }
+
+  const sqlCheckIsSaved = `
+  SELECT    1
+  FROM      "DrawingSaves"
+  WHERE     "userId" = $1
+        AND "drawingId" = $2;
+  `;
+  const params = [userId, drawingId];
+
+  db.query(sqlCheckIsSaved, params)
+    .then(result => {
+      (result.rows.length === 0)
+        ? res.status(200).json({
+          isSaved: 'false'
+        })
+        : res.status(200).json({
+          isSaved: 'true'
+        });
     })
     .catch(err => next(err));
 });
