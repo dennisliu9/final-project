@@ -16,6 +16,10 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use(express.json());
 
+function isPositiveInteger(val) {
+  return Number.isInteger(Number(val)) && Number(val) > 0;
+}
+
 const db = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -27,6 +31,7 @@ app.get('/api/hello', (req, res) => {
   res.json({ hello: 'world' });
 });
 
+// Create a new drawing in the database
 app.post('/api/drawings/', (req, res, next) => {
   const sqlCreateNewDrawing = `
   INSERT INTO "Drawings" ("urlText", "createdByUserId", "dateCreated", "dateSaved", "elements")
@@ -43,10 +48,11 @@ app.post('/api/drawings/', (req, res, next) => {
     .catch(err => next(err));
 });
 
+// Retrieve the drawn elements for a drawing
 app.get('/api/drawings/:drawingId', (req, res, next) => {
   const drawingId = req.params.drawingId;
 
-  if (!Number.isInteger(Number(drawingId)) || drawingId < 1) {
+  if (!isPositiveInteger(drawingId)) {
     res.status(400).json({
       error: `drawingId must be a positive integer, you supplied: ${drawingId}`
     });
@@ -74,24 +80,25 @@ app.get('/api/drawings/:drawingId', (req, res, next) => {
     .catch(err => next(err));
 });
 
+// Get whether a user has saved a drawing
 app.get('/api/drawingsaves/issaved', (req, res, next) => {
   if (!req.body || !req.body.userId || !req.body.drawingId) {
     res.status(400).json({
-      error: 'You did not submit a body with userId and drawingId.'
+      error: 'You did not submit a valid body with userId and drawingId.'
     });
     return;
   }
 
   const { userId, drawingId } = req.body;
 
-  if (!Number.isInteger(Number(userId)) || userId < 1) {
+  if (!isPositiveInteger(userId)) {
     res.status(400).json({
       error: `userId must be a positive integer, you supplied: ${userId}`
     });
     return;
   }
 
-  if (!Number.isInteger(Number(drawingId)) || drawingId < 1) {
+  if (!isPositiveInteger(drawingId)) {
     res.status(400).json({
       error: `drawingId must be a positive integer, you supplied: ${drawingId}`
     });
@@ -110,14 +117,55 @@ app.get('/api/drawingsaves/issaved', (req, res, next) => {
     .then(result => {
       (result.rows.length === 0)
         ? res.status(200).json({
-          isSaved: 'false'
+          isSaved: false
         })
         : res.status(200).json({
-          isSaved: 'true'
+          isSaved: true
         });
     })
     .catch(err => next(err));
 });
+
+// Save the drawn elements to its drawing record in the database
+app.put('/api/drawings/save-elements', (req, res, next) => {
+  // (future) Check if a user has edit permissions
+  if (!req.body || !req.body.drawingId || !req.body.elementsJSON) {
+    res.status(400).json({
+      error: 'You did not submit a valid body with a drawingId and an elementsJSON.'
+    });
+  }
+
+  const { drawingId, elementsJSON } = req.body;
+  if (!isPositiveInteger(drawingId)) {
+    res.status(400).json({
+      error: `drawingId must be a positive integer, you supplied: ${drawingId}`
+    });
+    return;
+  }
+
+  const sqlSaveElements = `
+  UPDATE    "Drawings"
+  SET       "elements" = $2,
+            "dateSaved" = NOW()
+  WHERE     "drawingId" = $1
+  RETURNING "dateSaved";
+  `;
+  const params = [drawingId, elementsJSON];
+
+  db.query(sqlSaveElements, params)
+    .then(result => {
+      (result.rows[0])
+        ? res.status(200).json(result.rows[0])
+        : res.status(204).json({
+          message: 'No rows updated.'
+        });
+    })
+    .catch(err => next(err));
+});
+
+// app.post();
+
+// app.delete();
 
 app.use(errorMiddleware);
 
