@@ -50,3 +50,4 @@ ALTER TABLE "Drawings" ADD CONSTRAINT "Drawings_fk0" FOREIGN KEY ("createdByUser
 
 ALTER TABLE "DrawingSaves" ADD CONSTRAINT "DrawingSaves_fk0" FOREIGN KEY ("userId") REFERENCES "Users"("userId");
 ALTER TABLE "DrawingSaves" ADD CONSTRAINT "DrawingSaves_fk1" FOREIGN KEY ("drawingId") REFERENCES "Drawings"("drawingId");
+ALTER TABLE "DrawingSaves" ADD CONSTRAINT "DrawingSaves_userId_drawingId_constraint" UNIQUE ("userId", "drawingId");
