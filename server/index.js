@@ -203,7 +203,39 @@ app.post('/api/drawingsaves/save/:drawingId', (req, res, next) => {
 });
 
 // Un-save a drawing for a user
-// app.delete();
+app.delete('/api/drawingsaves/unsave/:drawingId', (req, res, next) => {
+  if (!req.body || !req.body.userId) {
+    res.status(400).json({
+      error: 'You did not submit a valid body containing userId.'
+    });
+    return;
+  }
+
+  const userId = req.body.userId;
+  const drawingId = req.params.drawingId;
+  if (!isPositiveInteger(drawingId)) {
+    res.status(400).json({
+      error: `drawingId must be a positive integer, you supplied: ${drawingId}`
+    });
+    return;
+  }
+
+  const sqlUnsaveDrawing = `
+  DELETE
+  FROM    "DrawingSaves"
+  WHERE   "userId" = $1
+      AND "drawingId" = $2;
+  `;
+  const params = [userId, drawingId];
+
+  db.query(sqlUnsaveDrawing, params)
+    .then(results => {
+      res.status(200).json({
+        message: 'Drawing was unsave for user.'
+      });
+    })
+    .catch(err => next(err));
+});
 
 app.use(errorMiddleware);
 
