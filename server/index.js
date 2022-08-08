@@ -84,7 +84,7 @@ app.get('/api/drawings/:drawingId', (req, res, next) => {
 app.get('/api/drawingsaves/issaved', (req, res, next) => {
   if (!req.body || !req.body.userId || !req.body.drawingId) {
     res.status(400).json({
-      error: 'You did not submit a valid body with userId and drawingId.'
+      error: 'You did not submit a valid body containing userId and drawingId.'
     });
     return;
   }
@@ -127,11 +127,11 @@ app.get('/api/drawingsaves/issaved', (req, res, next) => {
 });
 
 // Save the drawn elements to its drawing record in the database
-app.put('/api/drawings/save-elements', (req, res, next) => {
+app.put('/api/drawings/save-elements/', (req, res, next) => {
   // (future) Check if a user has edit permissions
   if (!req.body || !req.body.drawingId || !req.body.elementsJSON) {
     res.status(400).json({
-      error: 'You did not submit a valid body with a drawingId and an elementsJSON.'
+      error: 'You did not submit a valid body containing drawingId and an elementsJSON.'
     });
   }
 
@@ -163,8 +163,46 @@ app.put('/api/drawings/save-elements', (req, res, next) => {
     .catch(err => next(err));
 });
 
-// app.post();
+// Save a drawing for a user
+app.post('/api/drawingsaves/save/:drawingId', (req, res, next) => {
+  if (!req.body || !req.body.userId) {
+    res.status(400).json({
+      error: 'You did not submit a valid body containing userId.'
+    });
+    return;
+  }
 
+  const userId = req.body.userId;
+  const drawingId = req.params.drawingId;
+  if (!isPositiveInteger(drawingId)) {
+    res.status(400).json({
+      error: `drawingId must be a positive integer, you supplied: ${drawingId}`
+    });
+    return;
+  }
+
+  const sqlSaveDrawing = `
+  INSERT INTO   "DrawingSaves" ("userId", "drawingId")
+  VALUES        ($1, $2)
+  `;
+  const params = [userId, drawingId];
+
+  db.query(sqlSaveDrawing, params)
+    .then(results => {
+      res.status(200).json({
+        message: 'Drawing saved for user.'
+      });
+    })
+    .catch(err => {
+      (err.code === '23505')
+        ? res.status(400).json({
+          error: 'Possible duplicate save (userId-drawingId combination already exists).'
+        })
+        : next(err);
+    });
+});
+
+// Un-save a drawing for a user
 // app.delete();
 
 app.use(errorMiddleware);
