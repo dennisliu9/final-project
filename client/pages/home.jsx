@@ -7,6 +7,8 @@ export default class Home extends React.Component {
     super(props);
     this.state = {
       currentTool: 'pen',
+      isLoading: true,
+      drawingId: null,
       currentColor: {
         colorName: 'red',
         colorValue: '#FF6B6B'
