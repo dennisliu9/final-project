@@ -57,3 +57,7 @@ foreignObject:hover {
 foreignObject * {
   overflow: hidden;
 }
+
+foreignObject > textarea {
+  font-family: "Fira Mono", monospace;
+}
