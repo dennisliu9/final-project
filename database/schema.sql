@@ -2,6 +2,7 @@ set client_min_messages to warning;
 
 -- DANGER: this is NOT how to do it in the real world.
 -- `drop schema` INSTANTLY ERASES EVERYTHING.
+-- DL: Keeping DROP SCHEMA until schema is finalized and SQL functionality is implemented
 drop schema "public" cascade;
 
 create schema "public";
