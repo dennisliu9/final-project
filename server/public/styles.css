@@ -6,6 +6,16 @@
   cursor: var(--cursor-type);
 }
 
+.logo-container {
+  width: 50vw;
+  max-width: 300px;
+}
+
+.logo-container > img {
+  object-fit: cover;
+  max-width: 100%;
+}
+
 @keyframes fade {
   0% {
     opacity: 1;
