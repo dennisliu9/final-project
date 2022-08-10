@@ -204,7 +204,7 @@ export default class SVGCanvas extends React.Component {
     switch (currentTool) {
       case 'pen':
       case 'eraser':
-        return 'url("./images/circle-cursor.png") 64 64, default';
+        return 'url("/images/circle-cursor.png") 64 64, default';
       case 'text':
       case 'textMd':
         return 'text';

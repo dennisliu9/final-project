@@ -1,5 +1,5 @@
 #svg-canvas {
-  --cursor-type: url("./images/circle-cursor.png") 64 64, default;
+  --cursor-type: url("/images/circle-cursor.png") 64 64, default;
 }
 
 #svg-canvas:hover {
