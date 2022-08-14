@@ -36,8 +36,29 @@ export default class Home extends React.Component {
         }
       ]
     };
+    this.createNewDrawing = this.createNewDrawing.bind(this);
     this.updateCurrentTool = this.updateCurrentTool.bind(this);
     this.updateCurrentColor = this.updateCurrentColor.bind(this);
+  }
+
+  componentDidMount() {
+    this.createNewDrawing();
+  }
+
+  createNewDrawing() {
+    const userId = this.context.userId;
+    fetch('/api/drawings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId })
+    })
+      .then(response => response.json())
+      .then(newDrawing => this.setState({
+        drawingId: newDrawing.drawingId
+      }))
+      .catch(err => console.error('Fetch failed during createNewDrawing(): ', err));
   }
 
   updateCurrentTool(toolName) {

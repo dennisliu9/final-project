@@ -4,6 +4,7 @@ const express = require('express');
 const pg = require('pg');
 const errorMiddleware = require('./error-middleware');
 // const ClientError = require('./client-error');
+const urlGenerator = require('./url-generator');
 
 const app = express();
 const publicPath = path.join(__dirname, 'public');
@@ -33,14 +34,17 @@ app.get('/api/hello', (req, res) => {
 
 // Create a new drawing in the database
 app.post('/api/drawings/', (req, res, next) => {
+  const randomUrlText = urlGenerator(3, 3, 8); // This could be repeated, add in check later
+
   const sqlCreateNewDrawing = `
   INSERT INTO "Drawings" ("urlText", "createdByUserId", "dateCreated", "dateSaved", "elements")
   -- hard code urlText and createdByUserId for now
-  VALUES ('tbd', '1', NOW(), NULL, '[]')
+  VALUES ($2, $1, NOW(), NULL, '[]')
   RETURNING "drawingId", "urlText";
   `;
+  const params = [req.body.userId, randomUrlText];
 
-  db.query(sqlCreateNewDrawing)
+  db.query(sqlCreateNewDrawing, params)
     .then(result => {
       // const { drawingId, urlText, elements } = result.rows[0];
       res.json(result.rows[0]);
