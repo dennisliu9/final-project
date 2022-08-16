@@ -45,7 +45,14 @@ export default class Home extends React.Component {
   }
 
   componentDidMount() {
-    this.createNewDrawing();
+    if (this.state.drawingId === null) {
+      this.createNewDrawing();
+    } else {
+      this.retrieveDrawing();
+    }
+    this.updateIsLoading();
+
+    // what happens if there's an error?
   }
 
   createNewDrawing() {
