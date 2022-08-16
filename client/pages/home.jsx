@@ -9,6 +9,7 @@ export default class Home extends React.Component {
       currentTool: 'pen',
       isLoading: true,
       drawingId: null,
+      elements: [],
       currentColor: {
         colorName: 'red',
         colorValue: '#FF6B6B'
@@ -37,6 +38,8 @@ export default class Home extends React.Component {
       ]
     };
     this.createNewDrawing = this.createNewDrawing.bind(this);
+    this.retrieveDrawing = this.retrieveDrawing.bind(this);
+    this.updateIsLoading = this.updateIsLoading.bind(this);
     this.updateCurrentTool = this.updateCurrentTool.bind(this);
     this.updateCurrentColor = this.updateCurrentColor.bind(this);
   }
@@ -61,6 +64,27 @@ export default class Home extends React.Component {
       .catch(err => console.error('Fetch failed during createNewDrawing(): ', err));
   }
 
+  retrieveDrawing() {
+    const drawingId = this.state.drawingId;
+    fetch(`api/drawings/${drawingId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(results => this.setState({
+        elements: results.elements
+      }))
+      .catch(err => console.error('Fetch failed during retrieveDrawing(): ', err));
+  }
+
+  updateIsLoading() {
+    this.setState({
+      isLoading: !this.state.isLoading
+    });
+  }
+
   updateCurrentTool(toolName) {
     this.setState({ currentTool: toolName });
   }
@@ -74,7 +98,11 @@ export default class Home extends React.Component {
   render() {
     return (
       <div className="page-center">
-        <SVGCanvas currentTool={this.state.currentTool} currentColor={this.state.currentColor}/>
+        <SVGCanvas
+          currentTool={this.state.currentTool}
+          currentColor={this.state.currentColor}
+          elements={this.state.elements}
+        />
         <Toolbar
           currentTool={this.state.currentTool}
           updateCurrentTool={this.updateCurrentTool}

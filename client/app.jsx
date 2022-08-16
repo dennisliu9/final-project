@@ -11,8 +11,8 @@ export default class App extends React.Component {
   }
 
   render() {
-
-    const contextValue = { userId: this.state.userId };
+    const userId = this.state.userId;
+    const contextValue = { userId };
 
     return (
     <AppContext.Provider value={contextValue}>

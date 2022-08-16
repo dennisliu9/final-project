@@ -19,31 +19,30 @@ export default class SVGCanvas extends React.Component {
       strokeWidth: 5,
       fontSize: '2rem',
       markdownBoxDimensions: [parseInt(window.innerWidth / 2), parseInt(window.innerHeight / 3)], // width, height
-      elements: [
-        // Example drawnPath object
-        // {
-        //   elementType: 'path',
-        //   elementId: 0,
-        //   startingPoint: [10, 10],
-        //   pathData: [
-        //     [150, 150],
-        //     [250, 300],
-        //     [350, 450],
-        //     [520, 229]
-        //   ],
-        //   stroke: 'hsl(204, 86%, 53%)',
-        //   strokeWidth: 5
-        // }
-        // Example textbox object
-        // {
-        //   elementType: 'text',
-        //   elementId: 1,
-        //   startingPoint: [140, 140],
-        //   userInput: 'hello world',
-        //   fill: 'hsl(204, 86%, 53%)',
-        //   fontSize: '2rem'
-        // }
-      ]
+      elements: this.props.elements
+      // Example drawnPath object
+      // {
+      //   elementType: 'path',
+      //   elementId: 0,
+      //   startingPoint: [10, 10],
+      //   pathData: [
+      //     [150, 150],
+      //     [250, 300],
+      //     [350, 450],
+      //     [520, 229]
+      //   ],
+      //   stroke: 'hsl(204, 86%, 53%)',
+      //   strokeWidth: 5
+      // }
+      // Example textbox object
+      // {
+      //   elementType: 'text',
+      //   elementId: 1,
+      //   startingPoint: [140, 140],
+      //   userInput: 'hello world',
+      //   fill: 'hsl(204, 86%, 53%)',
+      //   fontSize: '2rem'
+      // }
     };
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
     this.addUserInputToTextData = this.addUserInputToTextData.bind(this);
