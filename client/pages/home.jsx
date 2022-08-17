@@ -105,25 +105,23 @@ export default class Home extends React.Component {
 
   render() {
     return (
-      <>
+      <div className="page-center">
         <ControlBar
           userId={this.context.userId}
         />
-        <div className="page-center">
-          <SVGCanvas
-            currentTool={this.state.currentTool}
-            currentColor={this.state.currentColor}
-            elements={this.state.elements}
-          />
-          <Toolbar
-            currentTool={this.state.currentTool}
-            updateCurrentTool={this.updateCurrentTool}
-            currentColor={this.state.currentColor}
-            updateCurrentColor={this.updateCurrentColor}
-            colors={this.state.colors}
-          />
-        </div>
-    </>
+        <SVGCanvas
+          currentTool={this.state.currentTool}
+          currentColor={this.state.currentColor}
+          elements={this.state.elements}
+        />
+        <Toolbar
+          currentTool={this.state.currentTool}
+          updateCurrentTool={this.updateCurrentTool}
+          currentColor={this.state.currentColor}
+          updateCurrentColor={this.updateCurrentColor}
+          colors={this.state.colors}
+        />
+      </div>
     );
   }
 }
