@@ -1,6 +1,7 @@
 import React from 'react';
 import SVGCanvas from '../components/svg-canvas';
 import Toolbar from '../components/toolbar';
+import ControlBar from '../components/control-bar';
 
 export default class Home extends React.Component {
   constructor(props) {
@@ -105,6 +106,9 @@ export default class Home extends React.Component {
   render() {
     return (
       <div className="page-center">
+        <ControlBar
+          userId={this.context.userId}
+        />
         <SVGCanvas
           currentTool={this.state.currentTool}
           currentColor={this.state.currentColor}
