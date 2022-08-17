@@ -106,9 +106,6 @@ export default class Home extends React.Component {
   render() {
     return (
       <div className="page-center">
-        <ControlBar
-          userId={this.context.userId}
-        />
         <SVGCanvas
           currentTool={this.state.currentTool}
           currentColor={this.state.currentColor}
@@ -120,6 +117,9 @@ export default class Home extends React.Component {
           currentColor={this.state.currentColor}
           updateCurrentColor={this.updateCurrentColor}
           colors={this.state.colors}
+        />
+        <ControlBar
+          userId={this.context.userId}
         />
       </div>
     );
