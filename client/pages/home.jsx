@@ -45,6 +45,7 @@ export default class Home extends React.Component {
     this.updateIsLoading = this.updateIsLoading.bind(this);
     this.updateCurrentTool = this.updateCurrentTool.bind(this);
     this.updateCurrentColor = this.updateCurrentColor.bind(this);
+    this.handleSaveClick = this.handleSaveClick.bind(this);
   }
 
   static defaultProps = {
@@ -53,11 +54,8 @@ export default class Home extends React.Component {
   };
 
   componentDidMount() {
-  // TODO: Add check for if the drawing is saved for the current user
-  // what happens if there's an error?
-
-    // let (drawingId, elements, isSaved, etc.)
-    // Then update the values in the chain
+    // conditionally call createNewDrawing based on if drawingId starts off as null
+    // what happens if there's an error?
     let drawingId;
     let elements;
     let isDrawingSaved;
@@ -137,6 +135,53 @@ export default class Home extends React.Component {
     this.setState({ currentColor: selectedColor });
   }
 
+  handleSaveClick() {
+    const userId = this.context.userId;
+    const drawingId = this.state.drawingId;
+    let isDrawingSaved;
+    if (!this.state.isDrawingSaved) {
+      // Save drawing for user, then check save status to update state
+      fetch(`api/drawingsaves/save/${drawingId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      })
+        .then(response => {
+          return this.checkSaveStatus(drawingId);
+        })
+        .then(response => {
+          isDrawingSaved = response.isSaved;
+          return Promise.resolve();
+        })
+        .then(response => this.setState({
+          isDrawingSaved
+        }))
+        .catch(err => console.error('Fetch failed during handleSaveClick(): ', err));
+    } else {
+      // Do the same as saving but send a DELETE request to unsave route
+      fetch(`api/drawingsaves/unsave/${drawingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      })
+        .then(response => {
+          return this.checkSaveStatus(drawingId);
+        })
+        .then(response => {
+          isDrawingSaved = response.isSaved;
+          return Promise.resolve();
+        })
+        .then(response => this.setState({
+          isDrawingSaved
+        }))
+        .catch(err => console.error('Fetch failed during handleSaveClick(): ', err));
+    }
+  }
+
   render() {
     return (
       <div className="page-center">
@@ -156,6 +201,7 @@ export default class Home extends React.Component {
           userId={this.context.userId}
           drawingId={this.state.drawingId}
           isDrawingSaved={this.state.isDrawingSaved}
+          handleSaveClick={this.handleSaveClick}
         />
       </div>
     );

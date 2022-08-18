@@ -235,7 +235,7 @@ app.delete('/api/drawingsaves/unsave/:drawingId', (req, res, next) => {
   db.query(sqlUnsaveDrawing, params)
     .then(results => {
       res.status(200).json({
-        message: 'Drawing was unsave for user.'
+        message: 'Drawing was unsaved for user.'
       });
     })
     .catch(err => next(err));
