@@ -41,6 +41,7 @@ export default class Home extends React.Component {
     };
     this.createNewDrawing = this.createNewDrawing.bind(this);
     this.retrieveDrawing = this.retrieveDrawing.bind(this);
+    this.checkSaveStatus = this.checkSaveStatus.bind(this);
     this.updateIsLoading = this.updateIsLoading.bind(this);
     this.updateCurrentTool = this.updateCurrentTool.bind(this);
     this.updateCurrentColor = this.updateCurrentColor.bind(this);
@@ -54,11 +55,28 @@ export default class Home extends React.Component {
   componentDidMount() {
   // TODO: Add check for if the drawing is saved for the current user
   // what happens if there's an error?
+
+    // let (drawingId, elements, isSaved, etc.)
+    // Then update the values in the chain
+    let drawingId;
+    let elements;
+    let isDrawingSaved;
     this.createNewDrawing()
       .then(this.retrieveDrawing)
+      .then(response => {
+        drawingId = response.drawingId;
+        elements = response.elements;
+        // check Save status
+        return this.checkSaveStatus(drawingId);
+      })
+      .then(response => {
+        isDrawingSaved = response.isSaved;
+        return Promise.resolve();
+      })
       .then(response => this.setState({
-        drawingId: response.drawingId,
-        elements: response.elements
+        drawingId,
+        elements,
+        isDrawingSaved
       }))
       .then(this.updateIsLoading);
 
@@ -87,6 +105,20 @@ export default class Home extends React.Component {
     })
       .then(response => response.json())
       .catch(err => console.error('Fetch failed during retrieveDrawing(): ', err));
+  }
+
+  checkSaveStatus(drawingId) {
+    // response should be { isSaved: true/false }
+    const userId = this.context.userId;
+    return fetch('/api/drawingsaves/issaved', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId, drawingId })
+    })
+      .then(response => response.json())
+      .catch(err => console.error('Fetch failed during checkSaveStatus(): ', err));
   }
 
   updateIsLoading() {

@@ -85,7 +85,7 @@ app.get('/api/drawings/:drawingId', (req, res, next) => {
 });
 
 // Get whether a user has saved a drawing
-app.get('/api/drawingsaves/issaved', (req, res, next) => {
+app.post('/api/drawingsaves/issaved', (req, res, next) => {
   if (!req.body || !req.body.userId || !req.body.drawingId) {
     res.status(400).json({
       error: 'You did not submit a valid body containing userId and drawingId.'
