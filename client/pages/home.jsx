@@ -10,6 +10,7 @@ export default class Home extends React.Component {
       currentTool: 'pen',
       isLoading: true,
       drawingId: null,
+      isDrawingSaved: false,
       elements: [],
       currentColor: {
         colorName: 'red',
@@ -45,20 +46,27 @@ export default class Home extends React.Component {
     this.updateCurrentColor = this.updateCurrentColor.bind(this);
   }
 
-  componentDidMount() {
-    if (this.state.drawingId === null) {
-      this.createNewDrawing();
-    } else {
-      this.retrieveDrawing();
-    }
-    this.updateIsLoading();
+  static defaultProps = {
+    drawingId: null,
+    isDrawingSaved: null
+  };
 
-    // what happens if there's an error?
+  componentDidMount() {
+  // TODO: Add check for if the drawing is saved for the current user
+  // what happens if there's an error?
+    this.createNewDrawing()
+      .then(this.retrieveDrawing)
+      .then(response => this.setState({
+        drawingId: response.drawingId,
+        elements: response.elements
+      }))
+      .then(this.updateIsLoading);
+
   }
 
   createNewDrawing() {
     const userId = this.context.userId;
-    fetch('/api/drawings', {
+    return fetch('/api/drawings', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -66,24 +74,18 @@ export default class Home extends React.Component {
       body: JSON.stringify({ userId })
     })
       .then(response => response.json())
-      .then(newDrawing => this.setState({
-        drawingId: newDrawing.drawingId
-      }))
       .catch(err => console.error('Fetch failed during createNewDrawing(): ', err));
   }
 
-  retrieveDrawing() {
-    const drawingId = this.state.drawingId;
-    fetch(`api/drawings/${drawingId}`, {
-      method: 'POST',
+  retrieveDrawing(sqlResults) {
+    const drawingId = sqlResults.drawingId;
+    return fetch(`api/drawings/${drawingId}`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       }
     })
       .then(response => response.json())
-      .then(results => this.setState({
-        elements: results.elements
-      }))
       .catch(err => console.error('Fetch failed during retrieveDrawing(): ', err));
   }
 
@@ -120,6 +122,8 @@ export default class Home extends React.Component {
         />
         <ControlBar
           userId={this.context.userId}
+          drawingId={this.state.drawingId}
+          isDrawingSaved={this.state.isDrawingSaved}
         />
       </div>
     );
