@@ -189,6 +189,7 @@ export default class Home extends React.Component {
           currentTool={this.state.currentTool}
           currentColor={this.state.currentColor}
           elements={this.state.elements}
+          drawingId={this.state.drawingId}
         />
         <Toolbar
           currentTool={this.state.currentTool}

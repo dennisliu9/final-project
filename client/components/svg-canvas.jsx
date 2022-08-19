@@ -59,9 +59,13 @@ export default class SVGCanvas extends React.Component {
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleKeydown = this.handleKeydown.bind(this);
     this.handleTextboxModalSubmit = this.handleTextboxModalSubmit.bind(this);
+    this.saveElementsToDB = this.saveElementsToDB.bind(this);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.elements.length !== prevState.elements.length) {
+      this.saveElementsToDB();
+    }
     if (this.props.currentColor !== prevProps.currentColor) {
       this.setState({
         strokeColor: this.props.currentColor.colorValue
@@ -455,6 +459,22 @@ export default class SVGCanvas extends React.Component {
     this.setState({
       elements: [...this.state.elements.slice(0, modifyTextObjIdx), newCurrentText, ...this.state.elements.slice(modifyTextObjIdx + 1)]
     });
+  }
+
+  saveElementsToDB() {
+    // Currently, response of dateSaved is not being used but will be used later
+    fetch('/api/drawings/save-elements', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        drawingId: this.props.drawingId,
+        elementsJSON: JSON.stringify(this.state.elements)
+      })
+    })
+      .then(response => response.json())
+      .catch(err => console.error('Fetch failed during saveElementsToDB(): ', err));
   }
 
   render() {
