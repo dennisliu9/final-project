@@ -12,7 +12,7 @@ export default class Home extends React.Component {
       isLoading: true,
       drawingId: null,
       isDrawingSaved: false,
-      elements: [],
+      startingElements: [],
       currentColor: {
         colorName: 'red',
         colorValue: '#FF6B6B'
@@ -58,12 +58,12 @@ export default class Home extends React.Component {
     const startupFunc = async () => {
       const newDrawing = (this.state.drawingId) ? { drawingId: this.state.drawingId } : await this.createNewDrawing();
       const retrieveResults = await this.retrieveDrawing(newDrawing);
-      const { drawingId, elements } = retrieveResults;
+      const { drawingId, elements: startingElements } = retrieveResults;
       const saveCheck = await this.checkSaveStatus(drawingId);
       const isDrawingSaved = saveCheck.isSaved;
       this.setState({
         drawingId,
-        elements,
+        startingElements,
         isDrawingSaved
       });
       await this.updateIsLoading();
@@ -212,7 +212,7 @@ export default class Home extends React.Component {
         <SVGCanvas
           currentTool={this.state.currentTool}
           currentColor={this.state.currentColor}
-          elements={this.state.elements}
+          elements={this.state.startingElements}
           drawingId={this.state.drawingId}
         />
         <Toolbar

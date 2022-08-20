@@ -62,10 +62,22 @@ export default class SVGCanvas extends React.Component {
     this.saveElementsToDB = this.saveElementsToDB.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.elements.length !== prevState.elements.length) {
+  componentDidMount() {
+    // Simple saving mechanism, saves elements array to DB every 5 seconds as long as
+    // it's not empty
+    // the user is not currently adding a new element
+    // the length of the elements array is different than before
+    let previousElementsLength = this.state.elements.length;
+    setInterval(() => {
+      if (this.state.elements.length === 0 || this.state.currentElementId !== null || this.state.elements.length === previousElementsLength) {
+        return;
+      }
+      previousElementsLength = this.state.elements.length;
       this.saveElementsToDB();
-    }
+    }, 5000);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
     if (this.props.currentColor !== prevProps.currentColor) {
       this.setState({
         strokeColor: this.props.currentColor.colorValue
