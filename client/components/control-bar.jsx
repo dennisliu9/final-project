@@ -1,6 +1,8 @@
 import React from 'react';
+import AppContext from '../lib/app-context';
 
 export default class ControlBar extends React.Component {
+
   render() {
     return (
       <nav className='level is-mobile is-position-fixed top-5pct right-5pct'>
@@ -19,3 +21,5 @@ export default class ControlBar extends React.Component {
     );
   }
 }
+
+ControlBar.contextType = AppContext;

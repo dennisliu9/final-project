@@ -55,29 +55,21 @@ export default class Home extends React.Component {
   };
 
   componentDidMount() {
-    // conditionally call createNewDrawing based on if drawingId starts off as null
-    // what happens if there's an error?
-    let drawingId;
-    let elements;
-    let isDrawingSaved;
-    this.createNewDrawing()
-      .then(this.retrieveDrawing)
-      .then(response => {
-        drawingId = response.drawingId;
-        elements = response.elements;
-        // check Save status
-        return this.checkSaveStatus(drawingId);
-      })
-      .then(response => {
-        isDrawingSaved = response.isSaved;
-        return Promise.resolve();
-      })
-      .then(response => this.setState({
+    const startupFunc = async () => {
+      const newDrawing = (this.state.drawingId) ? { drawingId: this.state.drawingId } : await this.createNewDrawing();
+      const retrieveResults = await this.retrieveDrawing(newDrawing);
+      const { drawingId, elements } = retrieveResults;
+      const saveCheck = await this.checkSaveStatus(drawingId);
+      const isDrawingSaved = saveCheck.isSaved;
+      this.setState({
         drawingId,
         elements,
         isDrawingSaved
-      }))
-      .then(this.updateIsLoading);
+      });
+      await this.updateIsLoading();
+    };
+
+    startupFunc().catch(err => console.error('There was an error on componentDidMount() for Home: ', err));
 
   }
 
@@ -183,17 +175,20 @@ export default class Home extends React.Component {
         }));
     };
 
-    if (!this.state.isDrawingSaved) {
+    if (userId === null) {
+      // userId === null is placeholder for not signed in
+      this.context.toast.error(<div>
+        Please sign-in to save your drawings!
+        <br /><br />
+        Making an account is free, and we don&apos;t spam your email ever!
+      </div>
+      );
+    } else if (!this.state.isDrawingSaved) {
       this.context.toast.promise(
         saveDrawing,
         {
           pending: 'Saving drawing to your account...',
-          // success: 'Drawing saved!',
-          success: {
-            render({ data }) {
-              return `Hello ${data}`;
-            }
-          },
+          success: 'Drawing was successfully saved!',
           error: 'There was a problem saving the drawing!'
         }
       )
@@ -202,7 +197,7 @@ export default class Home extends React.Component {
       this.context.toast.promise(
         unsaveDrawing,
         {
-          pending: 'Un-saving the drawing...',
+          pending: 'Un-saving the drawing from your account...',
           success: 'Drawing was successfully un-saved!',
           error: 'There was a problem un-saving the drawing!'
         }

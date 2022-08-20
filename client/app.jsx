@@ -24,16 +24,10 @@ export default class App extends React.Component {
   }
 
   render() {
-    // const userId = this.state.userId;
-    // const contextValue = { userId };
-
-    const testToast = () => toast.success('Nice');
-
     return (
       <AppContext.Provider value={this.state.contextValue}>
-      <button onClick={testToast}>Success Button</button>
       <Home />
-      <ToastContainer theme="colored" autoClose={1000} position="top-center"/>
+      <ToastContainer theme="colored" autoClose={3000} position="top-center"/>
     </AppContext.Provider>
     );
   }
