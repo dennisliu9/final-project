@@ -6,6 +6,14 @@
   bottom: 10%;
 }
 
+.top-5pct {
+  top: 5%;
+}
+
+.right-5pct {
+  right: 5%;
+}
+
 .page-center {
   position: absolute;
   width: 100%;

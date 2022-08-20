@@ -19,32 +19,43 @@ export default class SVGCanvas extends React.Component {
       strokeWidth: 5,
       fontSize: '2rem',
       markdownBoxDimensions: [parseInt(window.innerWidth / 2), parseInt(window.innerHeight / 3)], // width, height
-      elements: [
-        // Example drawnPath object
-        // {
-        //   elementType: 'path',
-        //   elementId: 0,
-        //   startingPoint: [10, 10],
-        //   pathData: [
-        //     [150, 150],
-        //     [250, 300],
-        //     [350, 450],
-        //     [520, 229]
-        //   ],
-        //   stroke: 'hsl(204, 86%, 53%)',
-        //   strokeWidth: 5
-        // }
-        // Example textbox object
-        // {
-        //   elementType: 'text',
-        //   elementId: 1,
-        //   startingPoint: [140, 140],
-        //   userInput: 'hello world',
-        //   fill: 'hsl(204, 86%, 53%)',
-        //   fontSize: '2rem'
-        // }
-      ]
+      elements: this.props.elements
+      // Example drawnPath object
+      // {
+      //   elementType: 'path',
+      //   elementId: 0,
+      //   startingPoint: [10, 10],
+      //   pathData: [
+      //     [150, 150],
+      //     [250, 300],
+      //     [350, 450],
+      //     [520, 229]
+      //   ],
+      //   stroke: 'hsl(204, 86%, 53%)',
+      //   strokeWidth: 5
+      // }
+      // Example textbox object
+      // {
+      //   elementType: 'text',
+      //   elementId: 1,
+      //   startingPoint: [140, 140],
+      //   userInput: 'hello world',
+      //   fill: 'hsl(204, 86%, 53%)',
+      //   fontSize: '2rem'
+      // }
     };
+
+    // Function to create debounced versions of functions
+    // When repeatedly called with a delay, Timeouts continuously get set and cleared
+    // Only the last call will not get cleared (and therefore actually get called)
+    function debounce(fn, delay) {
+      let timeout = null;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(fn, delay, ...args);
+      };
+    }
+
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
     this.addUserInputToTextData = this.addUserInputToTextData.bind(this);
     this.addUserInputToMarkdownData = this.addUserInputToMarkdownData.bind(this);
@@ -60,9 +71,14 @@ export default class SVGCanvas extends React.Component {
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleKeydown = this.handleKeydown.bind(this);
     this.handleTextboxModalSubmit = this.handleTextboxModalSubmit.bind(this);
+    this.saveElementsToDB = this.saveElementsToDB.bind(this);
+    this.debouncedSaveElementsToDB = debounce(this.saveElementsToDB.bind(this), 1000);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.elements.length !== 0 || this.state.currentElementId === null || this.state.elements.length !== prevState.elements.length) {
+      this.debouncedSaveElementsToDB();
+    }
     if (this.props.currentColor !== prevProps.currentColor) {
       this.setState({
         strokeColor: this.props.currentColor.colorValue
@@ -456,6 +472,22 @@ export default class SVGCanvas extends React.Component {
     this.setState({
       elements: [...this.state.elements.slice(0, modifyTextObjIdx), newCurrentText, ...this.state.elements.slice(modifyTextObjIdx + 1)]
     });
+  }
+
+  saveElementsToDB() {
+    // Currently, response of dateSaved is not being used but will be used later
+    fetch('/api/drawings/save-elements', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        drawingId: this.props.drawingId,
+        elementsJSON: JSON.stringify(this.state.elements)
+      })
+    })
+      .then(response => response.json())
+      .catch(err => console.error('Fetch failed during saveElementsToDB(): ', err));
   }
 
   render() {

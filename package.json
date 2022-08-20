@@ -21,7 +21,8 @@
     "pg": "^8.7.3",
     "prismjs": "^1.28.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-toastify": "^9.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.18.5",
