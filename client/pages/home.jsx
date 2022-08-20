@@ -2,6 +2,7 @@ import React from 'react';
 import SVGCanvas from '../components/svg-canvas';
 import Toolbar from '../components/toolbar';
 import ControlBar from '../components/control-bar';
+import AppContext from '../lib/app-context';
 
 export default class Home extends React.Component {
   constructor(props) {
@@ -139,9 +140,10 @@ export default class Home extends React.Component {
     const userId = this.context.userId;
     const drawingId = this.state.drawingId;
     let isDrawingSaved;
-    if (!this.state.isDrawingSaved) {
+
+    const saveDrawing = () => {
       // Save drawing for user, then check save status to update state
-      fetch(`api/drawingsaves/save/${drawingId}`, {
+      return fetch(`api/drawingsaves/save/${drawingId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -157,11 +159,12 @@ export default class Home extends React.Component {
         })
         .then(response => this.setState({
           isDrawingSaved
-        }))
-        .catch(err => console.error('Fetch failed during handleSaveClick(): ', err));
-    } else {
+        }));
+    };
+
+    const unsaveDrawing = () => {
       // Do the same as saving but send a DELETE request to unsave route
-      fetch(`api/drawingsaves/unsave/${drawingId}`, {
+      return fetch(`api/drawingsaves/unsave/${drawingId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -177,7 +180,33 @@ export default class Home extends React.Component {
         })
         .then(response => this.setState({
           isDrawingSaved
-        }))
+        }));
+    };
+
+    if (!this.state.isDrawingSaved) {
+      this.context.toast.promise(
+        saveDrawing,
+        {
+          pending: 'Saving drawing to your account...',
+          // success: 'Drawing saved!',
+          success: {
+            render({ data }) {
+              return `Hello ${data}`;
+            }
+          },
+          error: 'There was a problem saving the drawing!'
+        }
+      )
+        .catch(err => console.error('Fetch failed during handleSaveClick(): ', err));
+    } else {
+      this.context.toast.promise(
+        unsaveDrawing,
+        {
+          pending: 'Un-saving the drawing...',
+          success: 'Drawing was successfully un-saved!',
+          error: 'There was a problem un-saving the drawing!'
+        }
+      )
         .catch(err => console.error('Fetch failed during handleSaveClick(): ', err));
     }
   }
@@ -208,3 +237,5 @@ export default class Home extends React.Component {
     );
   }
 }
+
+Home.contextType = AppContext;
