@@ -44,6 +44,18 @@ export default class SVGCanvas extends React.Component {
       //   fontSize: '2rem'
       // }
     };
+
+    // Function to create debounced versions of functions
+    // When repeatedly called with a delay, Timeouts continuously get set and cleared
+    // Only the last call will not get cleared (and therefore actually get called)
+    function debounce(fn, delay) {
+      let timeout = null;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(fn, delay, ...args);
+      };
+    }
+
     this.addCoordinateToPathData = this.addCoordinateToPathData.bind(this);
     this.addUserInputToTextData = this.addUserInputToTextData.bind(this);
     this.addUserInputToMarkdownData = this.addUserInputToMarkdownData.bind(this);
@@ -60,24 +72,13 @@ export default class SVGCanvas extends React.Component {
     this.handleKeydown = this.handleKeydown.bind(this);
     this.handleTextboxModalSubmit = this.handleTextboxModalSubmit.bind(this);
     this.saveElementsToDB = this.saveElementsToDB.bind(this);
-  }
-
-  componentDidMount() {
-    // Simple saving mechanism, saves elements array to DB every 5 seconds as long as
-    // it's not empty
-    // the user is not currently adding a new element
-    // the length of the elements array is different than before
-    let previousElementsLength = this.state.elements.length;
-    setInterval(() => {
-      if (this.state.elements.length === 0 || this.state.currentElementId !== null || this.state.elements.length === previousElementsLength) {
-        return;
-      }
-      previousElementsLength = this.state.elements.length;
-      this.saveElementsToDB();
-    }, 5000);
+    this.debouncedSaveElementsToDB = debounce(this.saveElementsToDB.bind(this), 1000);
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (this.state.elements.length !== 0 || this.state.currentElementId === null || this.state.elements.length !== prevState.elements.length) {
+      this.debouncedSaveElementsToDB();
+    }
     if (this.props.currentColor !== prevProps.currentColor) {
       this.setState({
         strokeColor: this.props.currentColor.colorValue

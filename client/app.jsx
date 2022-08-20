@@ -2,8 +2,6 @@ import React from 'react';
 import Home from './pages/home';
 import AppContext from './lib/app-context';
 import { ToastContainer, toast } from 'react-toastify';
-
-// import 'react-toastify/dist/ReactToastify.css';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 export default class App extends React.Component {
@@ -26,12 +24,9 @@ export default class App extends React.Component {
   render() {
     return (
       <AppContext.Provider value={this.state.contextValue}>
-      <Home />
-      <ToastContainer theme="colored" autoClose={3000} position="top-center"/>
-    </AppContext.Provider>
+        <Home />
+        <ToastContainer theme="colored" autoClose={3000} position="top-center"/>
+      </AppContext.Provider>
     );
   }
 }
-
-App.contextType = AppContext;
-Home.contextType = AppContext;
