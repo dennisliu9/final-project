@@ -3,7 +3,6 @@ const path = require('path');
 const express = require('express');
 const pg = require('pg');
 const errorMiddleware = require('./error-middleware');
-// const ClientError = require('./client-error');
 const urlGenerator = require('./url-generator');
 
 const app = express();
@@ -46,7 +45,6 @@ app.post('/api/drawings/', (req, res, next) => {
 
   db.query(sqlCreateNewDrawing, params)
     .then(result => {
-      // const { drawingId, urlText, elements } = result.rows[0];
       res.json(result.rows[0]);
     })
     .catch(err => next(err));
@@ -119,13 +117,7 @@ app.post('/api/drawingsaves/issaved', (req, res, next) => {
 
   db.query(sqlCheckIsSaved, params)
     .then(result => {
-      (result.rows.length === 0)
-        ? res.status(200).json({
-          isSaved: false
-        })
-        : res.status(200).json({
-          isSaved: true
-        });
+      res.status(200).json({ isSaved: result.rows.length > 0 });
     })
     .catch(err => next(err));
 });
