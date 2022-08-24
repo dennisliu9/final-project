@@ -69,7 +69,19 @@ export default class Home extends React.Component {
       await this.updateIsLoading();
     };
 
-    startupFunc().catch(err => console.error('There was an error on componentDidMount() for Home: ', err));
+    this.context.toast.promise(
+      startupFunc,
+      {
+        pending: 'Setting up the canvas, just a minute please...',
+        success: 'Canvas ready, enjoy!',
+        error: 'Something went wrong setting up the canvas, please try again!'
+      },
+      {
+        theme: 'light',
+        autoClose: 500
+      }
+    )
+      .catch(err => console.error('There was an error on componentDidMount() for Home: ', err));
 
   }
 
