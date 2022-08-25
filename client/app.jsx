@@ -22,6 +22,8 @@ export default class App extends React.Component {
   }
 
   render() {
+    window.addEventListener('offline', () => toast.error("You're offline, please try reconnecting and reloading!", { autoClose: false }));
+
     return (
       <AppContext.Provider value={this.state.contextValue}>
         <Home />

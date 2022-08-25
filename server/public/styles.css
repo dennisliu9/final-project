@@ -1,5 +1,5 @@
 #svg-canvas {
-  --cursor-type: url("/images/circle-cursor.png") 64 64, default;
+  --cursor-type: url("/images/circle-cursor.webp") 64 64, default;
 }
 
 #svg-canvas:hover {
@@ -14,6 +14,7 @@
 .logo-container > img {
   object-fit: cover;
   max-width: 100%;
+  pointer-events: none;
 }
 
 @keyframes fade {
