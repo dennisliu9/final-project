@@ -85,7 +85,6 @@ export default class SVGCanvas extends React.Component {
       });
     }
     if (this.props.currentTool !== prevProps.currentTool) {
-      // bugfix for when a markdown input is open but not submitted and tool changes
       if (prevProps.currentTool === 'textMd') {
         const nonRenderedMarkdown = this.state.elements.map(elementDetail => {
           if (elementDetail.elementType !== 'textMd' || elementDetail.render === true) {
@@ -159,7 +158,6 @@ export default class SVGCanvas extends React.Component {
   }
 
   addUserInputToMarkdownData(event) {
-    // use with onChange on textarea
     const modifyMarkdownObjIdx = this.state.elements.findIndex(element => element.elementId === this.state.currentElementId);
     const modifyMarkdownObj = this.state.elements[modifyMarkdownObjIdx];
 
@@ -181,7 +179,6 @@ export default class SVGCanvas extends React.Component {
 
   finishTextWriting(skipBlankCheck) {
     if (!skipBlankCheck) {
-      // Check if userInput was blank and remove textbox if so
       if (this.state.elements.find(element => element.elementId === this.state.currentElementId).userInput === '') {
         this.removeElement(this.state.currentElementId);
       }
@@ -197,7 +194,6 @@ export default class SVGCanvas extends React.Component {
     const modifyMarkdownObj = this.state.elements[modifyMarkdownObjIdx];
 
     if (modifyMarkdownObj.userInput === '' || isCancel) {
-      // Remove element if input was blank
       this.removeElement(this.state.currentElementId);
       this.setState({ currentElementId: null });
     } else {
@@ -216,7 +212,6 @@ export default class SVGCanvas extends React.Component {
   }
 
   updateCursorType(currentTool) {
-    // expecting this.props.currentTool
     switch (currentTool) {
       case 'pen':
       case 'eraser':
@@ -229,10 +224,8 @@ export default class SVGCanvas extends React.Component {
 
   handleMouseDown(event) {
     if (this.props.currentTool === 'pen') {
-      // Get location where user clicked
       const mouseLocation = [event.clientX, event.clientY];
 
-      // Create a new drawnPath object with user click as startingPoint
       const newDrawnPath = {
         elementType: 'path',
         elementId: this.state.nextElementId,
@@ -242,7 +235,6 @@ export default class SVGCanvas extends React.Component {
         strokeWidth: this.state.strokeWidth
       };
 
-      // Add new path to array of paths, and update element ID's
       this.setState({
         nextElementId: this.state.nextElementId + 1,
         currentElementId: this.state.nextElementId,
@@ -341,7 +333,6 @@ export default class SVGCanvas extends React.Component {
         // If user did not click on a foreignObject
         if (!document.elementsFromPoint(event.touches[0].clientX, event.touches[0].clientY).some(element => element.tagName === 'foreignObject')) {
           if (this.state.currentElementId && this.state.elements.find(element => element.elementId === this.state.currentElementId).render === false) {
-            // TODO: This will need to be reconsidered for how touch will work
             this.finishMarkdownWriting();
           } else {
             const mouseLocation = [event.touches[0].clientX, event.touches[0].clientY];
@@ -446,9 +437,7 @@ export default class SVGCanvas extends React.Component {
         this.finishTextWriting();
       }
     } else if (this.state.currentElementId !== null && this.props.currentTool === 'textMd') {
-      // condition could be improved to target "actively typing for a markdown box"
       if (event.key === 'Escape') {
-        // Escape should remove even if there was text
         this.removeElement(this.state.currentElementId);
         this.setState({ currentElementId: null });
       } else if (event.key === 'Enter' && event.ctrlKey) {

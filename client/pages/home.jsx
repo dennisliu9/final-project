@@ -135,7 +135,6 @@ export default class Home extends React.Component {
   }
 
   updateCurrentColor(colorName) {
-    // find color by colorName
     const selectedColor = this.state.colors.filter(colorObj => colorObj.colorName === colorName)[0];
     this.setState({ currentColor: selectedColor });
   }
@@ -146,7 +145,6 @@ export default class Home extends React.Component {
     let isDrawingSaved;
 
     const saveDrawing = () => {
-      // Save drawing for user, then check save status to update state
       return fetch(`api/drawingsaves/save/${drawingId}`, {
         method: 'POST',
         headers: {
@@ -167,7 +165,6 @@ export default class Home extends React.Component {
     };
 
     const unsaveDrawing = () => {
-      // Do the same as saving but send a DELETE request to unsave route
       return fetch(`api/drawingsaves/unsave/${drawingId}`, {
         method: 'DELETE',
         headers: {

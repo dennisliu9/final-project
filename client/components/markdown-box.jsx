@@ -7,7 +7,6 @@ import DOMPurify from 'dompurify';
 // prefix all Prism output classes to avoid collisions with Bulma
 Prism.plugins.customClass.prefix('prism-');
 
-// Set options for marked
 marked.setOptions({
   highlight: (code, lang) => {
     if (Prism.languages[lang]) {
