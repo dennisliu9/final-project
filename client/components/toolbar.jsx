@@ -60,7 +60,6 @@ export default class Toolbar extends React.Component {
               {/* text */}
               <div className={`control dropdown is-right is-up ${(this.state.selectingTextType) ? 'is-active' : ''}`}>
                 <div className="dropdown-trigger control" data-tool={this.state.textType} onClick={this.handleButtonClick}>
-                  {/* may need to change condition below */}
                   <button className={`button ${(this.props.currentTool === this.state.textType) ? 'is-primary' : ''}`}>
                     <span className="icon is-small">
                       <i className={(this.state.textType === 'text') ? 'fas fa-t' : 'fa-brands fa-markdown'}></i>
