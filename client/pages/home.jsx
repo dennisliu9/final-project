@@ -74,7 +74,7 @@ export default class Home extends React.Component {
       {
         pending: 'Setting up the canvas, just a minute please...',
         success: 'Canvas ready, enjoy!',
-        error: 'Something went wrong setting up the canvas, please try again!'
+        error: 'Something went wrong with setting up the canvas, please try again!'
       },
       {
         theme: 'light',
