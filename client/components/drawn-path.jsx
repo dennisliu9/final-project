@@ -10,11 +10,9 @@ export default class DrawnPath extends React.Component {
     pathData: [[x1, y1], [x2, y2], ...]
     stroke: "#FF0000" (or some other color representation)
     strokeWidth: 5
-
   */
-  render() {
-    // Note: can be further minified by removing L's entirely, no space between M and first number
 
+  render() {
     // create d value like 'M 0 0 L 10 20 L 30 40'
     const dPath = this.props.pathData.reduce(
       (previousValue, currentValue) => previousValue + ` L ${currentValue[0]} ${currentValue[1]}`,

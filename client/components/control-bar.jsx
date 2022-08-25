@@ -9,7 +9,10 @@ export default class ControlBar extends React.Component {
         <div className="level-right">
           <div className="level-item">
             <p className="control" onClick={this.props.handleSaveClick}>
-              <button className={`button is-white ${(this.props.isDrawingSaved) ? 'is-primary is-inverted' : ''}`} disabled={this.context.userId === null}>
+              <button
+                className={`button is-white ${(this.props.isDrawingSaved) ? 'is-primary is-inverted' : ''}`}
+                disabled={this.context.userId === null}
+              >
                 <span className="icon is-small">
                   <i className="fa-regular fa-floppy-disk"></i>
                 </span>

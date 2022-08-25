@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default class Textbox extends React.Component {
-  // this could also be a functional component
   render() {
     return (
       <text
