@@ -96,7 +96,7 @@ Try NapkinNotes out here: [Heroku Deployment](https://napkinnotes.herokuapp.com)
 1. Clone this repository and move into the directory.
 
     ```shell
-    git clone https://github.com/dennisliu9/final-project
+    git clone https://github.com/dennisliu9/napkinnotes
     cd napkin-notes
     ```
 
