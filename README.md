@@ -1,6 +1,5 @@
-
 <p align="center">
-  <img src="readmeImages/android-chrome-512x512.png" width=300px />
+  <img src="readmeImages/logo-512x512.png" width=300px />
 </p>
 
 # NapkinNotes
@@ -96,8 +95,8 @@ Try NapkinNotes out here: [Heroku Deployment](https://napkinnotes.herokuapp.com)
 1. Clone this repository and move into the directory.
 
     ```shell
-    git clone https://github.com/dennisliu9/final-project
-    cd napkin-notes
+    git clone https://github.com/dennisliu9/napkinnotes
+    cd napkinnotes
     ```
 
 1. Install dependencies in `package.json` with NPM.
